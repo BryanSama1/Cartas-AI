@@ -71,11 +71,7 @@ body {
   }
 }
 
-@layer components {
-  .tabs-trigger[data-state='active'] {
-    @apply bg-accent text-accent-foreground shadow;
-  }
-}
+
 
 @keyframes sparkle-fade {
   0%,
