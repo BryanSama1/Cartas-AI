@@ -48,6 +48,13 @@ export default function ChatRefinement({
   const { toast } = useToast();
   const [isRefining, setIsRefining] = useState(false);
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      refinementRequest: "",
+    },
+  });
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsRefining(true);
     onRefiningChange(true);
