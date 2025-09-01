@@ -8,9 +8,7 @@ import {
   AlignmentType,
   Header,
   Footer,
-  PageNumber,
-  TabStopType,
-  TabStopPosition,
+  ImageRun,
 } from "docx";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -24,15 +22,15 @@ export const downloadAsPdf = async (elementId: string) => {
 
   try {
     const canvas = await html2canvas(element, {
-      scale: 2, // Higher resolution
-      backgroundColor: null, // Use element's background
-      y: element.getBoundingClientRect().y
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
     });
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "pt",
-      format: "a4",
+      format: "letter",
     });
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -62,21 +60,54 @@ export const downloadAsPdf = async (elementId: string) => {
   }
 };
 
-export const downloadAsDocx = async (letterContent: string) => {
+const fetchImageAsBuffer = async (url: string) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise<ArrayBuffer>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as ArrayBuffer);
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(blob);
+    });
+}
+
+
+export const downloadAsDocx = async (letterContent: string, headerImagePath: string) => {
   if (!letterContent) return;
 
   const lines = letterContent.split("\n");
+  
+  const headerImageBuffer = await fetchImageAsBuffer(headerImagePath);
 
-  const headerText = "SECRETARÍA DE INNOVACIÓN DE LA PRESIDENCIA";
   const footerText =
     "Alameda Doctor Manuel Enrique Araujo No 5500, San Salvador, El Salvador, C.A.\nwww.presidencia.gob.sv";
 
   let isSignatureBlock = false;
   const signatureKeywords = [
-    "DANIEL ERNESTO MÉNDEZ CABRERA",
-    "DENIS ERNESTO POCASANGRE QUIJADA",
-    "LIC. JUAN CARLOS RODRÍGUEZ",
-    "LICENCIADO JERSON ROGELIO POSADA MOLINA",
+      "DANIEL ERNESTO MÉNDEZ CABRERA",
+      "SECRETARIO DE INNOVACIÓN",
+      "SECRETARIO DE INNOVACIÓN DE LA PRESIDENCIA",
+      "DENIS ERNESTO POCASANGRE QUIJADA",
+      "SUBSECRETARIO DE INNOVACIÓN",
+      "LIC. JUAN CARLOS RODRÍGUEZ",
+      "COORDINADOR REGIONAL DE PROYECTOS",
+      "LICENCIADO JERSON ROGELIO POSADA MOLINA",
+      "MINISTRO DE HACIENDA",
+      "BANCO INTERAMERICANO DE DESARROLLO",
+      "E.S.D.O.",
+      "SEÑOR MINISTRO",
+      "SEÑORA MINISTRA",
+      "SEÑOR VICEMINISTRO",
+      "SEÑORA VICEMINISTRA",
+      "SEÑOR DIRECTOR",
+      "SEÑORA DIRECTORA",
+      "SEÑOR GERENTE",
+      "SEÑORA GERENTE",
+      "SEÑOR JEFE",
+      "SEÑORA JEFA",
+      "SEÑOR PRESIDENTE",
+      "SEÑORA PRESIDENTA",
+      "SEÑOR COORDINADOR"
   ];
 
   const doc = new Document({
@@ -104,9 +135,12 @@ export const downloadAsDocx = async (letterContent: string) => {
             children: [
               new Paragraph({
                 children: [
-                  new TextRun({
-                    text: headerText,
-                    bold: true,
+                  new ImageRun({
+                    data: headerImageBuffer,
+                    transformation: {
+                      width: 612, // Letter width in points
+                      height: 75, 
+                    },
                   }),
                 ],
                 alignment: AlignmentType.CENTER,
@@ -120,13 +154,14 @@ export const downloadAsDocx = async (letterContent: string) => {
             children: [
               new Paragraph({
                 children: footerText.split("\n").map(
-                  (line) =>
+                  (line, i) =>
                     new TextRun({
                       children: [line],
-                      break: 1,
+                      break: i > 0 ? 1 : undefined,
                     })
                 ),
                 alignment: AlignmentType.CENTER,
+                 style: "bodyText"
               }),
             ],
           }),
@@ -158,7 +193,8 @@ export const downloadAsDocx = async (letterContent: string) => {
             }
 
             if (trimmedLine.endsWith(":") && trimmedLine === trimmedLine.toUpperCase()) {
-              return new Paragraph({
+              isSignatureBlock = true;
+               return new Paragraph({
                 children: [
                   new TextRun({
                     text: trimmedLine,
@@ -170,19 +206,29 @@ export const downloadAsDocx = async (letterContent: string) => {
               });
             }
             
-            // Heuristic for signature block start
-            if (signatureKeywords.some(keyword => trimmedLine.includes(keyword))) {
-                isSignatureBlock = true;
+            const isKeywordLine = signatureKeywords.some(keyword => trimmedLine.toUpperCase().includes(keyword));
+
+            if (isKeywordLine && trimmedLine.length > 0) {
+                 isSignatureBlock = true;
             }
 
-            if (isSignatureBlock && trimmedLine.length > 0) {
+            if (isSignatureBlock) {
                 let align = AlignmentType.LEFT;
-                // Center the main signee
-                if (trimmedLine.includes("DANIEL ERNESTO MÉNDEZ CABRERA") || trimmedLine.includes("SECRETARIO DE INNOVACIÓN")) {
+                
+                const centeredKeywords = [
+                    "DANIEL ERNESTO MÉNDEZ CABRERA",
+                    "SECRETARIO DE INNOVACIÓN",
+                    "SECRETARIO DE INNOVACIÓN DE LA PRESIDENCIA",
+                    "DENIS ERNESTO POCASANGRE QUIJADA",
+                    "SUBSECRETARIO DE INNOVACIÓN"
+                ];
+
+                if (centeredKeywords.some(keyword => trimmedLine.toUpperCase().includes(keyword))) {
                     align = AlignmentType.CENTER;
                 }
-                 if (trimmedLine.includes("DENIS ERNESTO POCASANGRE QUIJADA") || trimmedLine.includes("SUBSECRETARIO DE INNOVACIÓN")) {
-                    align = AlignmentType.CENTER;
+
+                if (trimmedLine.length === 0) {
+                     return new Paragraph({ text: "", style: "bodyText" });
                 }
 
                 return new Paragraph({
@@ -199,7 +245,7 @@ export const downloadAsDocx = async (letterContent: string) => {
 
 
             return new Paragraph({
-              text: line, // Use original line to preserve spacing between paragraphs
+              text: line, 
               style: "bodyText",
             });
           }),

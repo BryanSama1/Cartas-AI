@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Bot, Download, FileText, Loader2, FileType2 } from "lucide-react";
+import Image from 'next/image';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -80,7 +81,7 @@ export default function LetterGenerator() {
   };
 
   const handleDownloadDocx = () => {
-    downloadAsDocx(generatedResponse);
+    downloadAsDocx(generatedResponse, "/Fondo.png");
   };
 
   return (
@@ -159,7 +160,7 @@ export default function LetterGenerator() {
             <div id="response-content-wrapper" className="bg-white text-black font-serif text-[10.5pt] shadow-inner">
                 <div id="response-content" className="prose prose-sm max-w-none whitespace-pre-wrap p-6 relative flex flex-col min-h-[842pt]">
                     <header className="text-center font-bold text-xs py-4">
-                        <p>SECRETARÍA DE INNOVACIÓN DE LA PRESIDENCIA</p>
+                        <Image src="/Fondo.png" alt="Header" width={600} height={75} className="w-full h-auto" />
                     </header>
                     <main className="flex-grow px-10">
                         {generatedResponse}
