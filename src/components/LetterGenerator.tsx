@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Bot, Download, FileText, Loader2, FileType2 } from "lucide-react";
-import Image from 'next/image';
+import { Bot, FileText, Loader2, Clipboard } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +28,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { exampleLetters } from "@/lib/example-letters";
 import { generateLetterResponse } from "@/app/actions";
-import { downloadAsDocx, downloadAsPdf } from "@/lib/download";
 
 const formSchema = z.object({
   letter: z.string().min(50, {
@@ -76,12 +74,13 @@ export default function LetterGenerator() {
     }
   }
 
-  const handleDownloadPdf = () => {
-    downloadAsPdf("response-content");
-  };
-
-  const handleDownloadDocx = () => {
-    downloadAsDocx(generatedResponse, "/Fondo.png");
+  const handleCopy = () => {
+    if (!generatedResponse) return;
+    navigator.clipboard.writeText(generatedResponse);
+    toast({
+      title: "Copiado",
+      description: "La respuesta ha sido copiada al portapapeles.",
+    });
   };
 
   return (
@@ -141,8 +140,7 @@ export default function LetterGenerator() {
             Respuesta Generada
           </CardTitle>
           <CardDescription>
-            Esta es la respuesta generada por la IA. Revísela y descárguela en
-            el formato que prefiera.
+            Esta es la respuesta generada por la IA. Revísela y cópiela.
           </CardDescription>
         </CardHeader>
         <CardContent className="min-h-[300px] p-2">
@@ -157,15 +155,10 @@ export default function LetterGenerator() {
               <Skeleton className="h-4 w-full" />
             </div>
           ) : generatedResponse ? (
-            <div id="response-content" className="bg-white text-black font-serif text-[10.5pt] shadow-lg w-[612pt] min-h-[792pt] p-[72pt] mx-auto"
-                 style={{
-                    backgroundImage: "url(/Fondo.png)",
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat',
-                 }}>
-                <div className="prose prose-sm max-w-none whitespace-pre-wrap">
+            <div className="bg-white text-black p-6 rounded-md shadow-inner">
+                <pre className="text-sm whitespace-pre-wrap font-sans">
                     {generatedResponse}
-                </div>
+                </pre>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-center">
@@ -177,19 +170,11 @@ export default function LetterGenerator() {
         <CardFooter className="flex justify-end gap-2">
           <Button
             variant="outline"
-            onClick={handleDownloadDocx}
+            onClick={handleCopy}
             disabled={!generatedResponse || isLoading}
           >
-            <FileType2 className="mr-2 h-4 w-4" />
-            Descargar .docx
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleDownloadPdf}
-            disabled={!generatedResponse || isLoading}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Descargar .pdf
+            <Clipboard className="mr-2 h-4 w-4" />
+            Copiar Respuesta
           </Button>
         </CardFooter>
       </Card>
