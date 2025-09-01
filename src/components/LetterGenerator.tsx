@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { exampleLetters } from "@/lib/example-letters";
 import { generateLetterResponse } from "@/app/actions";
+import ChatRefinement from "@/components/ChatRefinement";
 
 const formSchema = z.object({
   letter: z.string().min(50, {
@@ -108,53 +109,62 @@ export default function LetterGenerator() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-xl flex items-center gap-2">
-            <FileText className="text-accent" />
-            Carta de Entrada
-          </CardTitle>
-          <CardDescription>
-            Pegue aquí la carta que ha recibido. La IA generará una respuesta
-            basada en el estilo de los documentos de ejemplo.
-          </CardDescription>
-        </CardHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="letter"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="sr-only">Carta recibida</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Escriba o pegue la carta aquí..."
-                        className="min-h-[300px] resize-y"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generando...
-                  </>
-                ) : (
-                  "Generar Respuesta"
-                )}
-              </Button>
-            </CardFooter>
-          </form>
-        </Form>
-      </Card>
+      <div className="flex flex-col gap-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline text-xl flex items-center gap-2">
+              <FileText className="text-accent" />
+              Carta de Entrada
+            </CardTitle>
+            <CardDescription>
+              Pegue aquí la carta que ha recibido. La IA generará una respuesta
+              basada en el estilo de los documentos de ejemplo.
+            </CardDescription>
+          </CardHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="letter"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="sr-only">Carta recibida</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Escriba o pegue la carta aquí..."
+                          className="min-h-[300px] resize-y"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generando...
+                    </>
+                  ) : (
+                    "Generar Respuesta"
+                  )}
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
+        </Card>
+
+        {generatedResponse && (
+          <ChatRefinement 
+            originalResponse={generatedResponse}
+            onRefinement={setGeneratedResponse}
+          />
+        )}
+      </div>
 
       <Card className="sticky top-24">
         <CardHeader>
