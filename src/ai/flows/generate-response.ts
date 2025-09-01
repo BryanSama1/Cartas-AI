@@ -42,8 +42,8 @@ Debes analizar los artículos y la forma en que se respondieron en las siguiente
 *   (DEJAR 2 LÍNEAS EN BLANCO AL INICIO)
 *
 *
-*   (Alineado a la derecha) San Salvador, [Fecha]
-*   (Alineado a la derecha) Oficio SI No. [Número]
+*   <div style="text-align: right;">San Salvador, [Fecha]</div>
+*   <div style="text-align: right;">Oficio SI No. [Número]</div>
 *
 *   **SEÑOR/A [TÍTULO]:** (EN MAYÚSCULAS Y MARCADO EN NEGRITA CON **)
 *
@@ -76,7 +76,7 @@ Es crucial que utilices los marcadores de posición exactos "[Fecha]" y "[Númer
 {{/each}}
 -- Fin de los Ejemplos --
 
-Ahora, usando el estilo, tono y estructura de los ejemplos, genera una respuesta a la siguiente carta. Recuerda usar ** para el texto en negrita:
+Ahora, usando el estilo, tono y estructura de los ejemplos, genera una respuesta a la siguiente carta. Recuerda usar ** para el texto en negrita y las etiquetas <div> con estilo para la fecha y el oficio:
 {{{letter}}}
 `,
 });

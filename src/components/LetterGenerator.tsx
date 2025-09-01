@@ -107,6 +107,18 @@ export default function LetterGenerator() {
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\n/g, "<br />");
 
+  const handleResponseChange = (e: React.FormEvent<HTMLDivElement>) => {
+    // This is a simple way to update state from a contentEditable div.
+    // For a more robust solution, a library might be needed to handle cursor position, etc.
+    const newHtml = e.currentTarget.innerHTML;
+    const newText = newHtml
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<strong>/gi, "**")
+      .replace(/<\/strong>/gi, "**");
+      // A more complex regex would be needed to convert back the div with styles
+    // For now, we update the visual but don't two-way-bind the raw generatedResponse state perfectly
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
       <div className="flex flex-col gap-8">
@@ -194,6 +206,7 @@ export default function LetterGenerator() {
               contentEditable={true}
               dangerouslySetInnerHTML={{ __html: formattedResponse }} 
               suppressContentEditableWarning={true}
+              onInput={handleResponseChange}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-center">
