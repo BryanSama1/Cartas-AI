@@ -64,8 +64,8 @@ After applying the logical changes, you must return the entire letter with the c
 *   Sin más sobre el particular, aprovecho la ocasión para externar mis muestras de consideración y estima.
 *
 *   (Bloque de firma - Las siguientes dos líneas van juntas, centradas, sin saltos de línea extra)
-*   **[NOMBRE DEL FIRMANTE]** (Centrado y marcado en negrita con **)
-*   **[CARGO DEL FIRMANTE]** (Centrado y marcado en negrita con **)
+*   **DANIEL ERNESTO MÉNDEZ CABRERA** (Centrado y marcado en negrita con **)
+*   **SECRETARIO DE INNOVACIÓN DE LA PRESIDENCIA** (Centrado y marcado en negrita con **)
 *
 *   (Bloque de destinatario - Las siguientes cuatro líneas van juntas, alineadas a la izquierda, sin saltos de línea extra)
 *   **[NOMBRE DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
