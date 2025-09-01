@@ -38,9 +38,10 @@ const prompt = ai.definePrompt({
   name: 'refineResponsePrompt',
   input: {schema: RefineResponseInputSchema},
   output: {schema: RefineResponseOutputSchema},
-  prompt: `You are an AI assistant that modifies an existing letter based on a user's request.
-Your task is to take the "Original Letter" and apply the "Refinement Request" to it.
-You must return the *entire letter* with the change applied, preserving the exact original formatting.
+  prompt: `You are an AI business assistant. Your primary task is to modify an existing letter based on a user's specific request. The AI will act as a tool, incorporating only the information it deems appropriate to complete a business response letter.
+
+You must take the "Original Letter" and meticulously apply the "Refinement Request".
+It is crucial that you return the *entire letter* with the change applied, preserving the exact original formatting.
 
 **Expected Structure (Reminder):**
 *   (DEJAR 2 LÍNEAS EN BLANCO AL INICIO)
@@ -63,7 +64,7 @@ You must return the *entire letter* with the change applied, preserving the exac
 *   **[MINISTERIO/ORGANIZACIÓN]** (Alineado a la izquierda y marcado en negrita con **)
 *   **E.S.D.O.** (Alineado a la izquierda y marcado en negrita con **)
 
-It is very important that you do not add any extra formatting. Do not make the changed text bold or uppercase unless specifically asked to. Preserve the exact original formatting, including markdown for bold text (**text**), and any HTML tags like <div style="...">.
+Do not add any extra formatting. Do not make the changed text bold or uppercase unless specifically asked to. Preserve the exact original formatting, including markdown for bold text (**text**), and any HTML tags like <div style="...">.
 
 **Original Letter:**
 {{{originalResponse}}}
@@ -71,7 +72,7 @@ It is very important that you do not add any extra formatting. Do not make the c
 **Refinement Request:**
 {{{refinementRequest}}}
 
-Now, provide the full, refined letter with only the requested change applied, ensuring it perfectly matches the required structure and formatting. Your output must be a valid JSON object matching the output schema, containing the full refined letter in the 'refinedResponse' field.
+Now, provide the full, refined letter with only the requested change applied, ensuring it perfectly matches the user's intent and the required structure. Your output must be a valid JSON object matching the output schema, containing the full refined letter in the 'refinedResponse' field.
 `,
 });
 
