@@ -38,8 +38,11 @@ const prompt = ai.definePrompt({
   name: 'refineResponsePrompt',
   input: {schema: RefineResponseInputSchema},
   output: {schema: RefineResponseOutputSchema},
-  prompt: `You are an AI assistant. Your task is to modify the 'Original Letter' by applying the 'Refinement Request'.
-You must return the entire letter with the change applied, preserving the exact original formatting.
+  prompt: `You are an expert assistant specializing in professional correspondence. Your task is to revise the 'Original Letter' based on the 'Refinement Request'.
+
+This is not just about adding text. You must understand the instruction and rewrite the relevant parts of the letter to reflect the requested change logically and coherently. For example, if the original letter denies an invitation and the request is "now accept it", you must change the body of the letter to be an acceptance.
+
+After applying the logical changes, you must return the entire letter with the change applied, preserving the exact original formatting (bold text, alignment, etc.).
 
 **Original Letter:**
 {{{originalResponse}}}
@@ -47,7 +50,7 @@ You must return the entire letter with the change applied, preserving the exact 
 **Refinement Request:**
 {{{refinementRequest}}}
 
-Now, provide the full, refined letter.
+Now, provide the full, refined letter with the logical change correctly implemented.
 `,
 });
 
