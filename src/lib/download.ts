@@ -83,8 +83,6 @@ export const downloadAsDocx = async (letterContent: string, backgroundImagePath:
       "SUBSECRETARIO DE INNOVACIÓN",
       "LIC. JUAN CARLOS RODRÍGUEZ",
       "COORDINADOR REGIONAL DE PROYECTOS",
-      "LICENCIADO JERSON ROGELIO POSADA MOLINA",
-      "MINISTRO DE HACIENDA",
       "BANCO INTERAMERICANO DE DESARROLLO",
       "E.S.D.O.",
       "SEÑOR MINISTRO",
