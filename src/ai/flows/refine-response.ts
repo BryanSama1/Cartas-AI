@@ -41,6 +41,7 @@ const prompt = ai.definePrompt({
   prompt: `You are an AI assistant that modifies an existing letter based on a user's request.
 Your task is to take the "Original Letter" and apply the "Refinement Request" to it.
 You must not change anything else in the letter. Only apply the requested change.
+It is very important that you do not add any extra formatting. Do not make the changed text bold or uppercase unless specifically asked to.
 Return the entire letter with the change applied. Preserve the exact original formatting, including markdown for bold text (**text**).
 
 **Original Letter:**
