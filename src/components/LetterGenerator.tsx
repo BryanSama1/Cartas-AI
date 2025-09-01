@@ -187,14 +187,14 @@ export default function LetterGenerator() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <CardHeader>
                 <CardTitle className="font-headline text-xl">
-                    Carta de Entrada
+                    Asistente de correos
                 </CardTitle>
                 <TabsList className="grid w-full grid-cols-2 mt-2">
-                    <TabsTrigger value="response">
+                    <TabsTrigger value="response" className="tabs-trigger">
                         <FileText className="mr-2" />
                         Responder a Carta
                     </TabsTrigger>
-                    <TabsTrigger value="new">
+                    <TabsTrigger value="new" className="tabs-trigger">
                         <PencilRuler className="mr-2" />
                         Crear Nueva Carta
                     </TabsTrigger>
