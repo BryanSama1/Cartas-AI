@@ -31,7 +31,7 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateNewLetterOutputSchema},
   prompt: `Eres un asistente de IA para la "Secretaría de Innovación". Tu tarea es redactar una carta o comunicado profesional basado en la instrucción del usuario.
 
-Es muy importante que uses **texto en negrita** para las partes que se indican y respetes la siguiente estructura.
+Es muy importante que uses **texto en negrita** para las partes que se indican y respetes la siguiente estructura, incluyendo referencias a normativas cuando sea apropiado.
 
 **Estructura de Respuesta Esperada (Sin incluir encabezados ni pies de página, solo el cuerpo):**
 
@@ -49,11 +49,11 @@ Es muy importante que uses **texto en negrita** para las partes que se indican y
 *
 *   Reciban un cordial saludo y deseos de éxitos en el desempeño de sus funciones.
 *
-*   [Párrafo introductorio, por ejemplo, haciendo referencia a artículos del Reglamento Interno del Órgano Ejecutivo.]
+*   Hago referencia a lo establecido en los numerales 1 y 2 del artículo 53-K del Reglamento Interno del Órgano Ejecutivo, referente a las atribuciones de la Secretaría de Innovación de la Presidencia de promover la adopción de tecnologías de la información y comunicación (TIC) para mejorar la eficiencia de los servicios públicos.
 *
-*   [Párrafos de desarrollo, explicando el motivo de la carta según la instrucción del usuario. El texto debe estar justificado.]
+*   [Párrafos de desarrollo, explicando el motivo de la carta según la instrucción del usuario. El texto debe estar justificado y ser coherente con el marco legal mencionado.]
 *
-*   [Párrafo de conclusión o llamado a la acción, si es necesario.]
+*   [Párrafo de llamado a la acción, si es necesario. Por ejemplo, solicitar apoyo, pedir que se llenen encuestas, etc.]
 *
 *   Sin más sobre el particular, aprovecho la ocasión para externarles mis muestras de consideración y estima.
 *
@@ -61,12 +61,12 @@ Es muy importante que uses **texto en negrita** para las partes que se indican y
 *   **DANIEL ERNESTO MÉNDEZ CABRERA** (Centrado y marcado en negrita con **)
 *   **SECRETARIO DE INNOVACIÓN DE LA PRESIDENCIA** (Centrado y marcado en negrita con **)
 
-Es crucial que utilices los marcadores de posición exactos "[Fecha]" y "[Número]".
+Es crucial que utilices los marcadores de posición exactos "[Fecha]" y "[Número]". No generes imágenes ni códigos QR.
 
 **Instrucción del Usuario:**
 {{{prompt}}}
 
-Ahora, usando la instrucción del usuario y respetando la estructura y formato, genera la carta solicitada. Recuerda usar ** para el texto en negrita y las etiquetas <div> con estilo para la fecha y el oficio.`,
+Ahora, usando la instrucción del usuario y respetando la estructura, formato y tono formal, genera la carta solicitada. Recuerda usar ** para el texto en negrita y las etiquetas <div> con estilo para la fecha y el oficio.`,
 });
 
 const generateNewLetterFlow = ai.defineFlow(
