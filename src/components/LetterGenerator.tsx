@@ -159,6 +159,7 @@ export default function LetterGenerator() {
   const formattedResponse = generatedResponse
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/<div style="text-align: right;">(.*?)<\/div>/g, '<div style="text-align: right;">$1</div>')
+    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
     .replace(/\n/g, "<br />");
 
 
@@ -169,7 +170,8 @@ export default function LetterGenerator() {
       .replace(/<strong>/gi, "**")
       .replace(/<\/strong>/gi, "**")
       .replace(/<div style="text-align: right;">/g, '\n<div style="text-align: right;">')
-      .replace(/<\/div>/g, '</div>\n');
+      .replace(/<\/div>/g, '</div>\n')
+      .replace(/<a href="(.*?)"[^>]*>(.*?)<\/a>/g, '$1'); 
 
     setGeneratedResponse(newText);
   };
