@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -39,6 +39,7 @@ export default function LetterGenerator() {
   const [generatedResponse, setGeneratedResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const responseRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -75,13 +76,32 @@ export default function LetterGenerator() {
   }
 
   const handleCopy = () => {
-    if (!generatedResponse) return;
-    navigator.clipboard.writeText(generatedResponse);
-    toast({
-      title: "Copiado",
-      description: "La respuesta ha sido copiada al portapapeles.",
-    });
+    if (responseRef.current) {
+      const range = document.createRange();
+      range.selectNode(responseRef.current);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+      try {
+        document.execCommand('copy');
+        toast({
+          title: "Copiado",
+          description: "La respuesta con formato ha sido copiada.",
+        });
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+        toast({
+          variant: 'destructive',
+          title: "Error al copiar",
+          description: "No se pudo copiar el texto.",
+        });
+      }
+      window.getSelection()?.removeAllRanges();
+    }
   };
+  
+  const formattedResponse = generatedResponse
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\n/g, "<br />");
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -155,10 +175,8 @@ export default function LetterGenerator() {
               <Skeleton className="h-4 w-full" />
             </div>
           ) : generatedResponse ? (
-            <div className="bg-white text-black p-6 rounded-md shadow-inner">
-                <pre className="text-sm whitespace-pre-wrap font-sans">
-                    {generatedResponse}
-                </pre>
+            <div ref={responseRef} className="bg-white text-black p-6 rounded-md shadow-inner text-sm font-sans whitespace-pre-wrap">
+                <div dangerouslySetInnerHTML={{ __html: formattedResponse }} />
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-center">

@@ -35,7 +35,7 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateResponseOutputSchema},
   prompt: `Eres un asistente de IA para la "Secretaría de Innovación". Tu tarea es generar una carta de respuesta. Te proporcionaré cartas que me han enviado y tú te encargarás de generar la respuesta que enviaré.
 
-Debes analizar los artículos y la forma en que se respondieron en las siguientes cartas de ejemplo y respetar la siguiente estructura.
+Debes analizar los artículos y la forma en que se respondieron en las siguientes cartas de ejemplo y respetar la siguiente estructura. Es muy importante que uses **texto en negrita** para las partes que se indican.
 
 **Estructura de Respuesta Esperada (Sin incluir encabezados ni pies de página, solo el cuerpo):**
 
@@ -45,7 +45,7 @@ Debes analizar los artículos y la forma en que se respondieron en las siguiente
 *   (Alineado a la derecha) San Salvador, [Fecha]
 *   (Alineado a la derecha) Oficio SI No. [Número]
 *
-*   **SEÑOR/A [TÍTULO]:** (EN NEGRITA Y MAYÚSCULAS)
+*   **SEÑOR/A [TÍTULO]:** (EN MAYÚSCULAS Y MARCADO EN NEGRITA CON **)
 *
 *   (Cuerpo del texto, justificado)
 *   Reciba un cordial saludo y deseos de éxitos en el desempeño de sus funciones.
@@ -57,13 +57,13 @@ Debes analizar los artículos y la forma en que se respondieron en las siguiente
 *   Sin más sobre el particular, aprovecho la ocasión para externar mis muestras de consideración y estima.
 *
 *   (Bloque de firma)
-*   **[NOMBRE DEL FIRMANTE]** (Centrado y en negrita)
-*   **[CARGO DEL FIRMANTE]** (Centrado y en negrita)
+*   **[NOMBRE DEL FIRMANTE]** (Centrado y marcado en negrita con **)
+*   **[CARGO DEL FIRMANTE]** (Centrado y marcado en negrita con **)
 *
-*   **[NOMBRE DEL DESTINATARIO]** (Alineado a la izquierda y en negrita)
-*   **[CARGO DEL DESTINATARIO]** (Alineado a la izquierda y en negrita)
-*   **[MINISTERIO/ORGANIZACIÓN]** (Alineado a la izquierda y en negrita)
-*   **E.S.D.O.** (Alineado a la izquierda y en negrita)
+*   **[NOMBRE DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
+*   **[CARGO DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
+*   **[MINISTERIO/ORGANIZACIÓN]** (Alineado a la izquierda y marcado en negrita con **)
+*   **E.S.D.O.** (Alineado a la izquierda y marcado en negrita con **)
 
 
 **Aquí están las cartas de ejemplo para que aprendas:**
@@ -74,7 +74,7 @@ Debes analizar los artículos y la forma en que se respondieron en las siguiente
 {{/each}}
 -- Fin de los Ejemplos --
 
-Ahora, usando el estilo, tono y estructura de los ejemplos, genera una respuesta a la siguiente carta:
+Ahora, usando el estilo, tono y estructura de los ejemplos, genera una respuesta a la siguiente carta. Recuerda usar ** para el texto en negrita:
 {{{letter}}}
 `,
 });
