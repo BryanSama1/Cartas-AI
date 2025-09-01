@@ -154,7 +154,7 @@ export const downloadAsDocx = async (letterContent: string, backgroundImagePath:
         properties: {
           page: {
             margin: {
-              top: 1440, // ~1 inch
+              top: 2880, // ~2 inches
               right: 1440,
               bottom: 1440,
               left: 1440,
