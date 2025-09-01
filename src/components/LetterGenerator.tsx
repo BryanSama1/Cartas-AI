@@ -131,28 +131,28 @@ export default function LetterGenerator() {
 
   const handleCopy = () => {
     if (responseRef.current) {
-        const selection = window.getSelection();
-        if (selection) {
-            const range = document.createRange();
-            range.selectNodeContents(responseRef.current);
-            selection.removeAllRanges();
-            selection.addRange(range);
-            try {
-                document.execCommand('copy');
-                toast({
-                    title: "Copiado",
-                    description: "La respuesta con formato ha sido copiada.",
-                });
-            } catch (err) {
-                console.error('Failed to copy text: ', err);
-                toast({
-                    variant: 'destructive',
-                    title: "Error al copiar",
-                    description: "No se pudo copiar el texto.",
-                });
-            }
-            selection.removeAllRanges();
+      const selection = window.getSelection();
+      if (selection) {
+        const range = document.createRange();
+        range.selectNodeContents(responseRef.current);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        try {
+          document.execCommand('copy');
+          toast({
+            title: "Copiado",
+            description: "La respuesta con formato ha sido copiada.",
+          });
+        } catch (err) {
+          console.error('Failed to copy text: ', err);
+          toast({
+            variant: 'destructive',
+            title: "Error al copiar",
+            description: "No se pudo copiar el texto.",
+          });
         }
+        selection.removeAllRanges();
+      }
     }
   };
   
@@ -163,30 +163,10 @@ export default function LetterGenerator() {
     .replace(/\n/g, "<br />");
 
   useEffect(() => {
-    // Only update innerHTML when the AI response changes, not during user input.
-    if (responseRef.current && responseRef.current.innerHTML !== formattedResponse) {
+    if (responseRef.current) {
       responseRef.current.innerHTML = formattedResponse;
     }
   }, [formattedResponse]);
-
-
-  const handleResponseChange = (e: React.FormEvent<HTMLDivElement>) => {
-    const html = e.currentTarget.innerHTML;
-    // Convert the HTML back to our markdown-like format for the AI
-    const newText = html
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<strong>/gi, "**")
-      .replace(/<\/strong>/gi, "**")
-      .replace(/<div style="text-align: right;">/g, '<div style="text-align: right;">')
-      .replace(/<\/div>/g, '</div>')
-      .replace(/<a href="(.*?)"[^>]*>(.*?)<\/a>/g, '$2 ($1)')
-      .replace(/&nbsp;/g, " ")
-      .replace(/<[^>]*>/g, ""); // Basic cleanup of other html tags
-    
-    // We update the state, but we don't cause a re-render that overwrites innerHTML
-    // because of the check in useEffect.
-    setGeneratedResponse(newText);
-  };
   
   const handleRefinement = (refinedResponse: string) => {
     setGeneratedResponse(refinedResponse);
@@ -333,7 +313,6 @@ export default function LetterGenerator() {
                 className="bg-white text-black p-6 rounded-md shadow-inner text-sm font-sans whitespace-pre-wrap min-h-[300px] focus:outline-none focus:ring-2 focus:ring-ring"
                 contentEditable={true}
                 suppressContentEditableWarning={true}
-                onInput={handleResponseChange}
               />
               {isRefining && (
                 <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-md">
@@ -364,3 +343,4 @@ export default function LetterGenerator() {
     </div>
   );
 }
+ 
