@@ -6,7 +6,11 @@ import {
   Paragraph,
   TextRun,
   AlignmentType,
-  PageBreak,
+  Header,
+  Footer,
+  PageNumber,
+  TabStopType,
+  TabStopPosition,
 } from "docx";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -22,6 +26,7 @@ export const downloadAsPdf = async (elementId: string) => {
     const canvas = await html2canvas(element, {
       scale: 2, // Higher resolution
       backgroundColor: null, // Use element's background
+      y: element.getBoundingClientRect().y
     });
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF({
@@ -60,75 +65,142 @@ export const downloadAsPdf = async (elementId: string) => {
 export const downloadAsDocx = async (letterContent: string) => {
   if (!letterContent) return;
 
-  const lines = letterContent.split("\n").map((line) => line.trim());
+  const lines = letterContent.split("\n");
+
+  const headerText = "SECRETARÍA DE INNOVACIÓN DE LA PRESIDENCIA";
+  const footerText =
+    "Alameda Doctor Manuel Enrique Araujo No 5500, San Salvador, El Salvador, C.A.\nwww.presidencia.gob.sv";
 
   let isSignatureBlock = false;
   const signatureKeywords = [
-    "DENIS ERNESTO POCASANGRE QUIJADA",
     "DANIEL ERNESTO MÉNDEZ CABRERA",
+    "DENIS ERNESTO POCASANGRE QUIJADA",
     "LIC. JUAN CARLOS RODRÍGUEZ",
+    "LICENCIADO JERSON ROGELIO POSADA MOLINA",
   ];
 
   const doc = new Document({
+    styles: {
+      paragraphStyles: [
+        {
+          id: "bodyText",
+          name: "Body Text",
+          basedOn: "Normal",
+          next: "Normal",
+          run: {
+            font: "Century Gothic",
+            size: 21, // 10.5pt
+          },
+          paragraph: {
+            alignment: AlignmentType.JUSTIFIED,
+          },
+        },
+      ],
+    },
     sections: [
       {
-        properties: {},
-        children: [
-            new Paragraph({
-                children: [new TextRun("Espacio para encabezado (PNG)")],
+        headers: {
+          default: new Header({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: headerText,
+                    bold: true,
+                  }),
+                ],
                 alignment: AlignmentType.CENTER,
-            }),
-            new Paragraph({ text: "" }),
-            new Paragraph({ text: "" }),
-            ...lines.map((line) => {
-            let alignment = AlignmentType.JUSTIFIED;
-            let isBold = false;
-            let font = "Arial";
+              }),
+              new Paragraph({ text: "" }),
+            ],
+          }),
+        },
+        footers: {
+          default: new Footer({
+            children: [
+              new Paragraph({
+                children: footerText.split("\n").map(
+                  (line) =>
+                    new TextRun({
+                      children: [line],
+                      break: 1,
+                    })
+                ),
+                alignment: AlignmentType.CENTER,
+              }),
+            ],
+          }),
+        },
+        properties: {
+          page: {
+            margin: {
+              top: 1440, // ~1 inch
+              right: 1440,
+              bottom: 1440,
+              left: 1440,
+            },
+          },
+        },
+        children: [
+          ...lines.map((line) => {
+            const trimmedLine = line.trim();
 
-            if (
-              line.startsWith("San Salvador,") ||
-              line.startsWith("Oficio SI No.")
-            ) {
-              alignment = AlignmentType.RIGHT;
-              font = "Century Gothic";
+            if (trimmedLine.startsWith("San Salvador,") || trimmedLine.startsWith("Oficio SI No.")) {
+              return new Paragraph({
+                children: [
+                  new TextRun({
+                    text: trimmedLine,
+                  }),
+                ],
+                style: "bodyText",
+                alignment: AlignmentType.RIGHT,
+              });
             }
 
-            // Check for salutation e.g. "SEÑOR MINISTRO:"
-            if (
-              line.length > 0 &&
-              line === line.toUpperCase() &&
-              line.endsWith(":")
-            ) {
-              isBold = true;
-            }
-
-            // A simple heuristic to detect the start of the signature block
-            if (signatureKeywords.some(keyword => line.includes(keyword))) {
-              isSignatureBlock = true;
+            if (trimmedLine.endsWith(":") && trimmedLine === trimmedLine.toUpperCase()) {
+              return new Paragraph({
+                children: [
+                  new TextRun({
+                    text: trimmedLine,
+                    bold: true,
+                  }),
+                ],
+                style: "bodyText",
+                alignment: AlignmentType.LEFT,
+              });
             }
             
-            if (line.includes('E.S.D.O.')) {
+            // Heuristic for signature block start
+            if (signatureKeywords.some(keyword => trimmedLine.includes(keyword))) {
                 isSignatureBlock = true;
             }
 
-            if (isSignatureBlock && line.length > 0) {
-              isBold = true;
-              alignment = AlignmentType.LEFT;
+            if (isSignatureBlock && trimmedLine.length > 0) {
+                let align = AlignmentType.LEFT;
+                // Center the main signee
+                if (trimmedLine.includes("DANIEL ERNESTO MÉNDEZ CABRERA") || trimmedLine.includes("SECRETARIO DE INNOVACIÓN")) {
+                    align = AlignmentType.CENTER;
+                }
+                 if (trimmedLine.includes("DENIS ERNESTO POCASANGRE QUIJADA") || trimmedLine.includes("SUBSECRETARIO DE INNOVACIÓN")) {
+                    align = AlignmentType.CENTER;
+                }
+
+                return new Paragraph({
+                    children: [
+                        new TextRun({
+                            text: trimmedLine,
+                            bold: true,
+                        }),
+                    ],
+                    style: "bodyText",
+                    alignment: align,
+                });
             }
 
+
             return new Paragraph({
-              children: [
-                new TextRun({
-                  text: line,
-                  bold: isBold,
-                  font: font,
-                  size: (font === "Arial" ? 11 : 12) * 2, // size in half-points
-                }),
-              ],
-              alignment: alignment,
-              spacing: {
-                after: 100,
-              },
+              text: line, // Use original line to preserve spacing between paragraphs
+              style: "bodyText",
             });
           }),
         ],

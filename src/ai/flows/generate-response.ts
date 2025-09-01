@@ -37,30 +37,31 @@ const prompt = ai.definePrompt({
 
 Debes analizar los artículos y la forma en que se respondieron en las siguientes cartas de ejemplo y respetar la siguiente estructura.
 
-**Estructura de Respuesta Esperada (Bajo la imagen del encabezado que se añadirá después):**
+**Estructura de Respuesta Esperada (Sin incluir encabezados ni pies de página, solo el cuerpo):**
 
 *   (Alineado a la derecha) San Salvador, [Fecha]
 *   (Alineado a la derecha) Oficio SI No. [Número]
 *
-*   **SEÑORA VICEMINISTRA:** (o título apropiado, EN NEGRITA)
+*   **SEÑOR/A [TÍTULO]:** (EN NEGRITA Y MAYÚSCULAS)
 *
-*   (Cuerpo del texto)
+*   (Cuerpo del texto, justificado)
 *   Reciba un cordial saludo y deseos de éxitos en el desempeño de sus funciones.
 *
-*   [Cuerpo principal de la carta, haciendo referencia a la carta recibida, citando artículos relevantes como el Art. 53-k del RIOE, proporcionando observaciones, etc.]
+*   [Cuerpo principal de la carta, haciendo referencia a la carta recibida, citando artículos relevantes, proporcionando observaciones, etc. El texto debe estar justificado.]
 *
 *   En virtud de lo antes expuesto, [párrafo de conclusión].
 *
 *   Sin más sobre el particular, aprovecho la ocasión para externar mis muestras de consideración y estima.
 *
+*   (Bloque de firma)
+*   **[NOMBRE DEL FIRMANTE]** (Centrado y en negrita)
+*   **[CARGO DEL FIRMANTE]** (Centrado y en negrita)
 *
-*   (Bloque de firma, EN NEGRITA)
-*   [NOMBRE DEL FIRMANTE]
-*   [CARGO DEL FIRMANTE]
-*   [NOMBRE DEL DESTINATARIO]
-*   [CARGO DEL DESTINATARIO]
-*   [MINISTERIO/ORGANIZACIÓN]
-*   E.S.D.O.
+*   **[NOMBRE DEL DESTINATARIO]** (Alineado a la izquierda y en negrita)
+*   **[CARGO DEL DESTINATARIO]** (Alineado a la izquierda y en negrita)
+*   **[MINISTERIO/ORGANIZACIÓN]** (Alineado a la izquierda y en negrita)
+*   **E.S.D.O.** (Alineado a la izquierda y en negrita)
+
 
 **Aquí están las cartas de ejemplo para que aprendas:**
 

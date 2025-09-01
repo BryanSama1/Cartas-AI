@@ -76,7 +76,7 @@ export default function LetterGenerator() {
   }
 
   const handleDownloadPdf = () => {
-    downloadAsPdf("response-content");
+    downloadAsPdf("response-content-wrapper");
   };
 
   const handleDownloadDocx = () => {
@@ -156,14 +156,19 @@ export default function LetterGenerator() {
               <Skeleton className="h-4 w-full" />
             </div>
           ) : generatedResponse ? (
-            <div
-              id="response-content"
-              className="prose prose-sm max-w-none whitespace-pre-wrap font-body bg-white p-6 rounded-md shadow-inner"
-            >
-                <div className="w-full h-24 bg-gray-200 flex items-center justify-center text-muted-foreground text-sm mb-8 rounded">
-                    Espacio para encabezado (PNG)
+            <div id="response-content-wrapper" className="bg-white text-black font-serif text-[10.5pt] shadow-inner">
+                <div id="response-content" className="prose prose-sm max-w-none whitespace-pre-wrap p-6 relative flex flex-col min-h-[842pt]">
+                    <header className="text-center font-bold text-xs py-4">
+                        <p>SECRETARÍA DE INNOVACIÓN DE LA PRESIDENCIA</p>
+                    </header>
+                    <main className="flex-grow px-10">
+                        {generatedResponse}
+                    </main>
+                    <footer className="text-center text-xs py-4">
+                        <p>Alameda Doctor Manuel Enrique Araujo No 5500, San Salvador, El Salvador, C.A.</p>
+                        <p>www.presidencia.gob.sv</p>
+                    </footer>
                 </div>
-                {generatedResponse}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-center">
