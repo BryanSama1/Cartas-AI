@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Bot, FileText, Loader2, Clipboard, Sparkles } from "lucide-react";
+import { Bot, FileText, Loader2, Clipboard, Sparkles, Save } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +29,9 @@ import { useToast } from "@/hooks/use-toast";
 import { exampleLetters } from "@/lib/example-letters";
 import { generateLetterResponse } from "@/app/actions";
 import ChatRefinement from "@/components/ChatRefinement";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { LetterHistory, Message } from "@/lib/types";
+
 
 const formSchema = z.object({
   letter: z.string().min(50, {
@@ -36,12 +39,20 @@ const formSchema = z.object({
   }),
 });
 
-export default function LetterGenerator() {
+type LetterGeneratorProps = {
+  selectedLetter: LetterHistory | null;
+};
+
+export default function LetterGenerator({ selectedLetter }: LetterGeneratorProps) {
   const [generatedResponse, setGeneratedResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
+  const [history, setHistory] = useLocalStorage<LetterHistory[]>("letterHistory", []);
+  const [chatMessages, setChatMessages] = useState<Message[]>([]);
+
   const { toast } = useToast();
   const responseRef = useRef<HTMLDivElement>(null);
+  const currentLetterId = useRef<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,9 +61,21 @@ export default function LetterGenerator() {
     },
   });
 
+  useEffect(() => {
+    if (selectedLetter) {
+      form.setValue("letter", selectedLetter.originalLetter);
+      setGeneratedResponse(selectedLetter.finalResponse);
+      setChatMessages(selectedLetter.history);
+      currentLetterId.current = selectedLetter.id;
+    }
+  }, [selectedLetter, form]);
+
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setGeneratedResponse("");
+    setChatMessages([]);
+    currentLetterId.current = null;
     try {
       const result = await generateLetterResponse({
         letter: values.letter,
@@ -62,8 +85,20 @@ export default function LetterGenerator() {
       if (result.error) {
         throw new Error(result.error);
       }
+      
+      const response = result.response ?? "";
+      setGeneratedResponse(response);
 
-      setGeneratedResponse(result.response ?? "");
+      // Create new history item but don't save yet
+      const newHistoryItem: LetterHistory = {
+        id: new Date().toISOString(),
+        originalLetter: values.letter,
+        finalResponse: response,
+        history: [],
+        createdAt: new Date(),
+      };
+      currentLetterId.current = newHistoryItem.id;
+      // We will save it when user clicks "save" or generates a new letter
     } catch (error) {
       toast({
         variant: "destructive",
@@ -76,6 +111,45 @@ export default function LetterGenerator() {
       setIsLoading(false);
     }
   }
+
+  const handleSaveHistory = () => {
+    if (!currentLetterId.current || !generatedResponse) {
+      toast({
+        variant: "destructive",
+        title: "Nada que guardar",
+        description: "Primero genera una respuesta para poder guardarla.",
+      });
+      return;
+    }
+
+    const existingIndex = history.findIndex(item => item.id === currentLetterId.current);
+
+    if (existingIndex !== -1) {
+      // Update existing item
+      const updatedHistory = [...history];
+      updatedHistory[existingIndex] = {
+        ...updatedHistory[existingIndex],
+        finalResponse: generatedResponse,
+        history: chatMessages,
+      };
+      setHistory(updatedHistory);
+    } else {
+      // Add new item
+      const newHistoryItem: LetterHistory = {
+        id: currentLetterId.current,
+        originalLetter: form.getValues("letter"),
+        finalResponse: generatedResponse,
+        history: chatMessages,
+        createdAt: new Date(),
+      };
+      setHistory([newHistoryItem, ...history]);
+    }
+
+    toast({
+      title: "Guardado",
+      description: "La carta y su conversación han sido guardadas en el historial.",
+    });
+  };
 
   const handleCopy = () => {
     if (responseRef.current) {
@@ -106,18 +180,25 @@ export default function LetterGenerator() {
   
   const formattedResponse = generatedResponse
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/<div style="text-align: right;">(.*?)<\/div>/g, '<div style="text-align: right;">$1</div>')
     .replace(/\n/g, "<br />");
 
+
   const handleResponseChange = (e: React.FormEvent<HTMLDivElement>) => {
-    // This is a simple way to update state from a contentEditable div.
-    // For a more robust solution, a library might be needed to handle cursor position, etc.
     const newHtml = e.currentTarget.innerHTML;
     const newText = newHtml
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<strong>/gi, "**")
-      .replace(/<\/strong>/gi, "**");
-      // A more complex regex would be needed to convert back the div with styles
-    // For now, we update the visual but don't two-way-bind the raw generatedResponse state perfectly
+      .replace(/<\/strong>/gi, "**")
+      .replace(/<div style="text-align: right;">/g, '\n<div style="text-align: right;">')
+      .replace(/<\/div>/g, '</div>\n');
+
+    setGeneratedResponse(newText);
+  };
+  
+  const handleRefinement = (refinedResponse: string, newMessages: Message[]) => {
+    setGeneratedResponse(refinedResponse);
+    setChatMessages(newMessages);
   };
 
   return (
@@ -163,7 +244,7 @@ export default function LetterGenerator() {
                       Generando...
                     </>
                   ) : (
-                    "Generar Respuesta"
+                    "Generar Nueva Respuesta"
                   )}
                 </Button>
               </CardFooter>
@@ -174,8 +255,9 @@ export default function LetterGenerator() {
         {generatedResponse && (
           <ChatRefinement 
             originalResponse={generatedResponse}
-            onRefinement={setGeneratedResponse}
+            onRefinement={handleRefinement}
             onRefiningChange={setIsRefining}
+            initialMessages={chatMessages}
           />
         )}
       </div>
@@ -226,11 +308,18 @@ export default function LetterGenerator() {
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-end gap-2">
+        <CardFooter className="flex justify-between gap-2">
           <Button
             variant="outline"
+            onClick={handleSaveHistory}
+            disabled={!generatedResponse || isLoading || isRefining}
+          >
+            <Save className="mr-2 h-4 w-4" />
+            Guardar
+          </Button>
+          <Button
             onClick={handleCopy}
-            disabled={!generatedResponse || isLoading}
+            disabled={!generatedResponse || isLoading || isRefining}
           >
             <Clipboard className="mr-2 h-4 w-4" />
             Copiar Respuesta

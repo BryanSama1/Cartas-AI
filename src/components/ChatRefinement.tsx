@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -26,30 +26,33 @@ import {
 } from "@/components/ui/form";
 import { refineLetterResponse } from "@/app/actions";
 import { useToast } from "@/hooks/use-toast";
+import { Message } from "@/lib/types";
 
 const formSchema = z.object({
   refinementRequest: z.string().min(1, "El mensaje no puede estar vacío."),
 });
 
-type Message = {
-  role: "user" | "bot";
-  content: string;
-};
 
 type ChatRefinementProps = {
   originalResponse: string;
-  onRefinement: (refinedResponse: string) => void;
+  onRefinement: (refinedResponse: string, messages: Message[]) => void;
   onRefiningChange: (isRefining: boolean) => void;
+  initialMessages: Message[];
 };
 
 export default function ChatRefinement({
   originalResponse,
   onRefinement,
   onRefiningChange,
+  initialMessages
 }: ChatRefinementProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const { toast } = useToast();
   const [isRefining, setIsRefining] = useState(false);
+
+  useEffect(() => {
+    setMessages(initialMessages);
+  }, [initialMessages]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,12 +65,13 @@ export default function ChatRefinement({
     setIsRefining(true);
     onRefiningChange(true);
     const userMessage: Message = { role: "user", content: values.refinementRequest };
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
 
     try {
-      const responseToRefine = messages.length > 0 
-        ? originalResponse // This is simplistic, a more robust implementation might use the latest bot response
-        : originalResponse;
+      // Use the latest bot response as the base for refinement. If no bot responses yet, use the original.
+      const lastBotResponse = [...messages].reverse().find(m => m.role === 'bot')?.content;
+      const responseToRefine = lastBotResponse || originalResponse;
 
       const result = await refineLetterResponse({
         originalResponse: responseToRefine,
@@ -80,8 +84,9 @@ export default function ChatRefinement({
 
       if (result.refinedResponse) {
         const botMessage: Message = { role: "bot", content: result.refinedResponse };
-        onRefinement(result.refinedResponse);
-        setMessages(prev => [...prev, botMessage]);
+        const finalMessages = [...newMessages, botMessage];
+        onRefinement(result.refinedResponse, finalMessages);
+        setMessages(finalMessages);
       }
     } catch (error) {
       toast({
@@ -123,6 +128,11 @@ export default function ChatRefinement({
                 <div className="p-2 bg-primary rounded-full text-primary-foreground">
                   <Bot size={20} />
                 </div>
+              )}
+               {message.role === 'bot' && (
+                <div className="bg-muted p-3 rounded-lg max-w-sm">
+                    <p className="text-sm">{message.content}</p>
+                 </div>
               )}
               {message.role === "user" && (
                  <div className="bg-muted p-3 rounded-lg max-w-sm">
