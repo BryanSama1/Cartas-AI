@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Bot, FileText, Loader2, Clipboard, Sparkles } from "lucide-react";
+import { Bot, FileText, Loader2, Clipboard, Sparkles, PencilRuler } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
@@ -27,32 +33,47 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { exampleLetters } from "@/lib/example-letters";
-import { generateLetterResponse } from "@/app/actions";
+import { generateLetterResponse, generateNewLetter } from "@/app/actions";
 import ChatRefinement from "@/components/ChatRefinement";
 
 
-const formSchema = z.object({
+const responseFormSchema = z.object({
   letter: z.string().min(50, {
     message: "La carta debe tener al menos 50 caracteres.",
   }),
 });
 
+const newLetterFormSchema = z.object({
+  prompt: z.string().min(10, {
+    message: "La instrucción debe tener al menos 10 caracteres.",
+  }),
+});
+
+
 export default function LetterGenerator() {
   const [generatedResponse, setGeneratedResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
+  const [activeTab, setActiveTab] = useState("response");
   
   const { toast } = useToast();
   const responseRef = useRef<HTMLDivElement>(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const responseForm = useForm<z.infer<typeof responseFormSchema>>({
+    resolver: zodResolver(responseFormSchema),
     defaultValues: {
       letter: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const newLetterForm = useForm<z.infer<typeof newLetterFormSchema>>({
+    resolver: zodResolver(newLetterFormSchema),
+    defaultValues: {
+      prompt: "",
+    },
+  });
+
+  async function onResponseSubmit(values: z.infer<typeof responseFormSchema>) {
     setIsLoading(true);
     setGeneratedResponse("");
     try {
@@ -71,6 +92,33 @@ export default function LetterGenerator() {
       toast({
         variant: "destructive",
         title: "Error al generar la respuesta",
+        description:
+          "Hubo un problema al comunicarse con la IA. Por favor, inténtelo de nuevo.",
+      });
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function onNewLetterSubmit(values: z.infer<typeof newLetterFormSchema>) {
+    setIsLoading(true);
+    setGeneratedResponse("");
+    try {
+      const result = await generateNewLetter({
+        prompt: values.prompt,
+      });
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
+      const response = result.response ?? "";
+      setGeneratedResponse(response);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error al generar la carta",
         description:
           "Hubo un problema al comunicarse con la IA. Por favor, inténtelo de nuevo.",
       });
@@ -134,51 +182,104 @@ export default function LetterGenerator() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
       <div className="flex flex-col gap-8">
         <Card>
-          <CardHeader>
-            <CardTitle className="font-headline text-xl flex items-center gap-2">
-              <FileText className="text-accent" />
-              Carta de Entrada
-            </CardTitle>
-            <CardDescription>
-              Pegue aquí la carta que ha recibido. La IA generará una respuesta
-              basada en el estilo de los documentos de ejemplo.
-            </CardDescription>
-          </CardHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <CardContent>
-                <FormField
-                  control={form.control}
-                  name="letter"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="sr-only">Carta recibida</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Escriba o pegue la carta aquí..."
-                          className="min-h-[300px] resize-y"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generando...
-                    </>
-                  ) : (
-                    "Generar Nueva Respuesta"
-                  )}
-                </Button>
-              </CardFooter>
-            </form>
-          </Form>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <CardHeader>
+                <CardTitle className="font-headline text-xl">
+                    Carta de Entrada
+                </CardTitle>
+                <TabsList className="grid w-full grid-cols-2 mt-2">
+                    <TabsTrigger value="response">
+                        <FileText className="mr-2" />
+                        Responder a Carta
+                    </TabsTrigger>
+                    <TabsTrigger value="new">
+                        <PencilRuler className="mr-2" />
+                        Crear Nueva Carta
+                    </TabsTrigger>
+                </TabsList>
+            </CardHeader>
+            <TabsContent value="response">
+                <Form {...responseForm}>
+                    <form onSubmit={responseForm.handleSubmit(onResponseSubmit)}>
+                        <CardContent>
+                            <CardDescription className="mb-4">
+                                Pegue aquí la carta que ha recibido. La IA generará una respuesta
+                                basada en el estilo de los documentos de ejemplo.
+                            </CardDescription>
+                            <FormField
+                                control={responseForm.control}
+                                name="letter"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="sr-only">Carta recibida</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Escriba o pegue la carta aquí..."
+                                                className="min-h-[250px] resize-y"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit" disabled={isLoading}>
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Generando...
+                                    </>
+                                ) : (
+                                    "Generar Respuesta"
+                                )}
+                            </Button>
+                        </CardFooter>
+                    </form>
+                </Form>
+            </TabsContent>
+            <TabsContent value="new">
+                <Form {...newLetterForm}>
+                    <form onSubmit={newLetterForm.handleSubmit(onNewLetterSubmit)}>
+                        <CardContent>
+                             <CardDescription className="mb-4">
+                                Escriba una instrucción clara para la IA. Por ejemplo: "Redacta una invitación para la graduación del programa Seeds for the Future."
+                            </CardDescription>
+                            <FormField
+                                control={newLetterForm.control}
+                                name="prompt"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="sr-only">Instrucción para nueva carta</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Ej: Redacta una carta para solicitar el préstamo del auditorio de la BINAES para el 18 de diciembre..."
+                                                className="min-h-[250px] resize-y"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit" disabled={isLoading}>
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Generando...
+                                    </>
+                                ) : (
+                                    "Generar Nueva Carta"
+                                )}
+                            </Button>
+                        </CardFooter>
+                    </form>
+                </Form>
+            </TabsContent>
+          </Tabs>
         </Card>
 
         {generatedResponse && (
@@ -231,8 +332,9 @@ export default function LetterGenerator() {
             </>
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-center">
-              <FileText size={48} className="mb-4" />
-              <p>La respuesta generada aparecerá aquí.</p>
+              <Bot size={48} className="mb-4" />
+              <p>La carta generada aparecerá aquí.</p>
+              <p className="text-xs text-muted-foreground/80">Seleccione una opción a la izquierda para comenzar.</p>
             </div>
           )}
         </CardContent>
