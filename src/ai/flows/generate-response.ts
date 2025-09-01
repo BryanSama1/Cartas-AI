@@ -65,6 +65,7 @@ Debes analizar los artículos y la forma en que se respondieron en las siguiente
 *   **[MINISTERIO/ORGANIZACIÓN]** (Alineado a la izquierda y marcado en negrita con **)
 *   **E.S.D.O.** (Alineado a la izquierda y marcado en negrita con **)
 
+Es crucial que utilices los marcadores de posición exactos "[Fecha]" y "[Número]" en lugar de inventar una fecha o un número de oficio.
 
 **Aquí están las cartas de ejemplo para que aprendas:**
 

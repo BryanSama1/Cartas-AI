@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -77,25 +77,28 @@ export default function LetterGenerator() {
 
   const handleCopy = () => {
     if (responseRef.current) {
-      const range = document.createRange();
-      range.selectNode(responseRef.current);
-      window.getSelection()?.removeAllRanges();
-      window.getSelection()?.addRange(range);
-      try {
-        document.execCommand('copy');
-        toast({
-          title: "Copiado",
-          description: "La respuesta con formato ha sido copiada.",
-        });
-      } catch (err) {
-        console.error('Failed to copy text: ', err);
-        toast({
-          variant: 'destructive',
-          title: "Error al copiar",
-          description: "No se pudo copiar el texto.",
-        });
-      }
-      window.getSelection()?.removeAllRanges();
+        const selection = window.getSelection();
+        if (selection) {
+            const range = document.createRange();
+            range.selectNodeContents(responseRef.current);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                toast({
+                    title: "Copiado",
+                    description: "La respuesta con formato ha sido copiada.",
+                });
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                toast({
+                    variant: 'destructive',
+                    title: "Error al copiar",
+                    description: "No se pudo copiar el texto.",
+                });
+            }
+            selection.removeAllRanges();
+        }
     }
   };
   
@@ -160,7 +163,7 @@ export default function LetterGenerator() {
             Respuesta Generada
           </CardTitle>
           <CardDescription>
-            Esta es la respuesta generada por la IA. Revísela y cópiela.
+            Esta es la respuesta generada por la IA. Revísela, edítela si es necesario y cópiela.
           </CardDescription>
         </CardHeader>
         <CardContent className="min-h-[300px] p-2">
@@ -175,9 +178,13 @@ export default function LetterGenerator() {
               <Skeleton className="h-4 w-full" />
             </div>
           ) : generatedResponse ? (
-            <div ref={responseRef} className="bg-white text-black p-6 rounded-md shadow-inner text-sm font-sans whitespace-pre-wrap">
-                <div dangerouslySetInnerHTML={{ __html: formattedResponse }} />
-            </div>
+            <div 
+              ref={responseRef} 
+              className="bg-white text-black p-6 rounded-md shadow-inner text-sm font-sans whitespace-pre-wrap min-h-[300px] focus:outline-none focus:ring-2 focus:ring-ring"
+              contentEditable={true}
+              dangerouslySetInnerHTML={{ __html: formattedResponse }} 
+              suppressContentEditableWarning={true}
+            />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-center">
               <FileText size={48} className="mb-4" />
