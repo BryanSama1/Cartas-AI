@@ -29,7 +29,6 @@ import { useToast } from "@/hooks/use-toast";
 import { exampleLetters } from "@/lib/example-letters";
 import { generateLetterResponse } from "@/app/actions";
 import ChatRefinement from "@/components/ChatRefinement";
-import { Message } from "@/lib/types";
 
 
 const formSchema = z.object({
