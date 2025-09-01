@@ -156,7 +156,7 @@ export default function ChatRefinement({
                   <FormLabel className="sr-only">Tu mensaje</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Escribe tu petición aquí..."
+                      placeholder="Ej: 'Aceptar la invitación pero posponer la fecha'"
                       {...field}
                       disabled={isRefining}
                     />
