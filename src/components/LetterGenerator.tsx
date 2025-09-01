@@ -77,7 +77,7 @@ export default function LetterGenerator() {
   }
 
   const handleDownloadPdf = () => {
-    downloadAsPdf("response-content-wrapper");
+    downloadAsPdf("response-content");
   };
 
   const handleDownloadDocx = () => {
@@ -145,9 +145,9 @@ export default function LetterGenerator() {
             el formato que prefiera.
           </CardDescription>
         </CardHeader>
-        <CardContent className="min-h-[300px]">
+        <CardContent className="min-h-[300px] p-2">
           {isLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-3 p-4">
               <Skeleton className="h-4 w-1/2" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-full" />
@@ -157,18 +157,14 @@ export default function LetterGenerator() {
               <Skeleton className="h-4 w-full" />
             </div>
           ) : generatedResponse ? (
-            <div id="response-content-wrapper" className="bg-white text-black font-serif text-[10.5pt] shadow-inner">
-                <div id="response-content" className="prose prose-sm max-w-none whitespace-pre-wrap p-6 relative flex flex-col min-h-[842pt]">
-                    <header className="text-center font-bold text-xs py-4">
-                        <Image src="/Fondo.png" alt="Header" width={600} height={75} className="w-full h-auto" />
-                    </header>
-                    <main className="flex-grow px-10">
-                        {generatedResponse}
-                    </main>
-                    <footer className="text-center text-xs py-4">
-                        <p>Alameda Doctor Manuel Enrique Araujo No 5500, San Salvador, El Salvador, C.A.</p>
-                        <p>www.presidencia.gob.sv</p>
-                    </footer>
+            <div id="response-content" className="bg-white text-black font-serif text-[10.5pt] shadow-lg w-[612pt] min-h-[792pt] p-[72pt] mx-auto"
+                 style={{
+                    backgroundImage: "url(/Fondo.png)",
+                    backgroundSize: '100% 100%',
+                    backgroundRepeat: 'no-repeat',
+                 }}>
+                <div className="prose prose-sm max-w-none whitespace-pre-wrap">
+                    {generatedResponse}
                 </div>
             </div>
           ) : (

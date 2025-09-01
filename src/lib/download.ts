@@ -7,8 +7,11 @@ import {
   TextRun,
   AlignmentType,
   Header,
-  Footer,
   ImageRun,
+  VerticalPositionAlign,
+  HorizontalPositionAlign,
+  TextWrappingType,
+  TextWrappingSide,
 } from "docx";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -25,6 +28,11 @@ export const downloadAsPdf = async (elementId: string) => {
       scale: 2,
       useCORS: true,
       allowTaint: true,
+      backgroundColor: null,
+      width: 612, // letter size in points
+      height: 792, // letter size in points
+      windowWidth: 612,
+      windowHeight: 792,
     });
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF({
@@ -35,24 +43,8 @@ export const downloadAsPdf = async (elementId: string) => {
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
     
-    const ratio = canvasWidth / pdfWidth;
-    const calculatedHeight = canvasHeight / ratio;
-
-    let heightLeft = calculatedHeight;
-    let position = 0;
-
-    pdf.addImage(imgData, "PNG", 0, position, pdfWidth, calculatedHeight);
-    heightLeft -= pdfHeight;
-
-    while (heightLeft >= 0) {
-      position = heightLeft - calculatedHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, calculatedHeight);
-      heightLeft -= pdfHeight;
-    }
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
 
     pdf.save("respuesta.pdf");
   } catch (error) {
@@ -62,6 +54,9 @@ export const downloadAsPdf = async (elementId: string) => {
 
 const fetchImageAsBuffer = async (url: string) => {
     const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
     const blob = await response.blob();
     return new Promise<ArrayBuffer>((resolve, reject) => {
         const reader = new FileReader();
@@ -72,15 +67,12 @@ const fetchImageAsBuffer = async (url: string) => {
 }
 
 
-export const downloadAsDocx = async (letterContent: string, headerImagePath: string) => {
+export const downloadAsDocx = async (letterContent: string, backgroundImagePath: string) => {
   if (!letterContent) return;
 
   const lines = letterContent.split("\n");
   
-  const headerImageBuffer = await fetchImageAsBuffer(headerImagePath);
-
-  const footerText =
-    "Alameda Doctor Manuel Enrique Araujo No 5500, San Salvador, El Salvador, C.A.\nwww.presidencia.gob.sv";
+  const backgroundImageBuffer = await fetchImageAsBuffer(backgroundImagePath);
 
   let isSignatureBlock = false;
   const signatureKeywords = [
@@ -135,33 +127,26 @@ export const downloadAsDocx = async (letterContent: string, headerImagePath: str
             children: [
               new Paragraph({
                 children: [
-                  new ImageRun({
-                    data: headerImageBuffer,
-                    transformation: {
-                      width: 612, // Letter width in points
-                      height: 75, 
-                    },
-                  }),
+                   new ImageRun({
+                        data: backgroundImageBuffer,
+                        transformation: {
+                            width: 612, // Letter width in points
+                            height: 792, // Letter height in points
+                        },
+                        floating: {
+                            horizontalPosition: {
+                                align: HorizontalPositionAlign.PAGE,
+                            },
+                            verticalPosition: {
+                                align: VerticalPositionAlign.PAGE,
+                            },
+                            wrap: {
+                                type: TextWrappingType.BEHIND,
+                                side: TextWrappingSide.BOTH_SIDES,
+                            },
+                        },
+                    }),
                 ],
-                alignment: AlignmentType.CENTER,
-              }),
-              new Paragraph({ text: "" }),
-            ],
-          }),
-        },
-        footers: {
-          default: new Footer({
-            children: [
-              new Paragraph({
-                children: footerText.split("\n").map(
-                  (line, i) =>
-                    new TextRun({
-                      children: [line],
-                      break: i > 0 ? 1 : undefined,
-                    })
-                ),
-                alignment: AlignmentType.CENTER,
-                 style: "bodyText"
               }),
             ],
           }),
@@ -193,8 +178,7 @@ export const downloadAsDocx = async (letterContent: string, headerImagePath: str
             }
 
             if (trimmedLine.endsWith(":") && trimmedLine === trimmedLine.toUpperCase()) {
-              isSignatureBlock = true;
-               return new Paragraph({
+              return new Paragraph({
                 children: [
                   new TextRun({
                     text: trimmedLine,
