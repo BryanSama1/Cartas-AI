@@ -38,33 +38,8 @@ const prompt = ai.definePrompt({
   name: 'refineResponsePrompt',
   input: {schema: RefineResponseInputSchema},
   output: {schema: RefineResponseOutputSchema},
-  prompt: `You are an AI business assistant. Your primary task is to modify an existing letter based on a user's specific request. The AI will act as a tool, incorporating only the information it deems appropriate to complete a business response letter.
-
-You must take the "Original Letter" and meticulously apply the "Refinement Request".
-It is crucial that you return the *entire letter* with the change applied, preserving the exact original formatting.
-
-**Expected Structure (Reminder):**
-*   (DEJAR 2 LÍNEAS EN BLANCO AL INICIO)
-*
-*
-*   <div style="text-align: right;">San Salvador, [Fecha]</div>
-*   <div style="text-align: right;">Oficio SI No. [Número]</div>
-*
-*   **SEÑOR/A [TÍTULO]:** (EN MAYÚSCULAS Y MARCADO EN NEGRITA CON **)
-*
-*   (Cuerpo del texto, justificado)
-*
-*   (Bloque de firma - Las siguientes dos líneas van juntas, centradas, sin saltos de línea extra)
-*   **[NOMBRE DEL FIRMANTE]** (Centrado y marcado en negrita con **)
-*   **[CARGO DEL FIRMANTE]** (Centrado y marcado en negrita con **)
-*
-*   (Bloque de destinatario - Las siguientes cuatro líneas van juntas, alineadas a la izquierda, sin saltos de línea extra)
-*   **[NOMBRE DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
-*   **[CARGO DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
-*   **[MINISTERIO/ORGANIZACIÓN]** (Alineado a la izquierda y marcado en negrita con **)
-*   **E.S.D.O.** (Alineado a la izquierda y marcado en negrita con **)
-
-Do not add any extra formatting. Do not make the changed text bold or uppercase unless specifically asked to. Preserve the exact original formatting, including markdown for bold text (**text**), and any HTML tags like <div style="...">.
+  prompt: `You are an AI assistant. Your task is to modify the 'Original Letter' by applying the 'Refinement Request'.
+You must return the entire letter with the change applied, preserving the exact original formatting.
 
 **Original Letter:**
 {{{originalResponse}}}
@@ -72,7 +47,7 @@ Do not add any extra formatting. Do not make the changed text bold or uppercase 
 **Refinement Request:**
 {{{refinementRequest}}}
 
-Now, provide the full, refined letter with only the requested change applied, ensuring it perfectly matches the user's intent and the required structure. Your output must be a valid JSON object matching the output schema, containing the full refined letter in the 'refinedResponse' field.
+Now, provide the full, refined letter.
 `,
 });
 
