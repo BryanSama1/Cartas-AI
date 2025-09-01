@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Bot, FileText, Loader2, Clipboard, Sparkles, Save } from "lucide-react";
+import { Bot, FileText, Loader2, Clipboard, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { exampleLetters } from "@/lib/example-letters";
 import { generateLetterResponse } from "@/app/actions";
 import ChatRefinement from "@/components/ChatRefinement";
-import { useLocalStorage } from "@/hooks/use-local-storage";
-import { LetterHistory, Message } from "@/lib/types";
+import { Message } from "@/lib/types";
 
 
 const formSchema = z.object({
@@ -39,20 +38,14 @@ const formSchema = z.object({
   }),
 });
 
-type LetterGeneratorProps = {
-  selectedLetter: LetterHistory | null;
-};
-
-export default function LetterGenerator({ selectedLetter }: LetterGeneratorProps) {
+export default function LetterGenerator() {
   const [generatedResponse, setGeneratedResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
-  const [history, setHistory] = useLocalStorage<LetterHistory[]>("letterHistory", []);
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
 
   const { toast } = useToast();
   const responseRef = useRef<HTMLDivElement>(null);
-  const currentLetterId = useRef<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,21 +54,10 @@ export default function LetterGenerator({ selectedLetter }: LetterGeneratorProps
     },
   });
 
-  useEffect(() => {
-    if (selectedLetter) {
-      form.setValue("letter", selectedLetter.originalLetter);
-      setGeneratedResponse(selectedLetter.finalResponse);
-      setChatMessages(selectedLetter.history);
-      currentLetterId.current = selectedLetter.id;
-    }
-  }, [selectedLetter, form]);
-
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setGeneratedResponse("");
     setChatMessages([]);
-    currentLetterId.current = null;
     try {
       const result = await generateLetterResponse({
         letter: values.letter,
@@ -88,17 +70,6 @@ export default function LetterGenerator({ selectedLetter }: LetterGeneratorProps
       
       const response = result.response ?? "";
       setGeneratedResponse(response);
-
-      // Create new history item but don't save yet
-      const newHistoryItem: LetterHistory = {
-        id: new Date().toISOString(),
-        originalLetter: values.letter,
-        finalResponse: response,
-        history: [],
-        createdAt: new Date(),
-      };
-      currentLetterId.current = newHistoryItem.id;
-      // We will save it when user clicks "save" or generates a new letter
     } catch (error) {
       toast({
         variant: "destructive",
@@ -112,44 +83,6 @@ export default function LetterGenerator({ selectedLetter }: LetterGeneratorProps
     }
   }
 
-  const handleSaveHistory = () => {
-    if (!currentLetterId.current || !generatedResponse) {
-      toast({
-        variant: "destructive",
-        title: "Nada que guardar",
-        description: "Primero genera una respuesta para poder guardarla.",
-      });
-      return;
-    }
-
-    const existingIndex = history.findIndex(item => item.id === currentLetterId.current);
-
-    if (existingIndex !== -1) {
-      // Update existing item
-      const updatedHistory = [...history];
-      updatedHistory[existingIndex] = {
-        ...updatedHistory[existingIndex],
-        finalResponse: generatedResponse,
-        history: chatMessages,
-      };
-      setHistory(updatedHistory);
-    } else {
-      // Add new item
-      const newHistoryItem: LetterHistory = {
-        id: currentLetterId.current,
-        originalLetter: form.getValues("letter"),
-        finalResponse: generatedResponse,
-        history: chatMessages,
-        createdAt: new Date(),
-      };
-      setHistory([newHistoryItem, ...history]);
-    }
-
-    toast({
-      title: "Guardado",
-      description: "La carta y su conversación han sido guardadas en el historial.",
-    });
-  };
 
   const handleCopy = () => {
     if (responseRef.current) {
@@ -257,7 +190,6 @@ export default function LetterGenerator({ selectedLetter }: LetterGeneratorProps
             originalResponse={generatedResponse}
             onRefinement={handleRefinement}
             onRefiningChange={setIsRefining}
-            initialMessages={chatMessages}
           />
         )}
       </div>
@@ -308,15 +240,7 @@ export default function LetterGenerator({ selectedLetter }: LetterGeneratorProps
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex justify-between gap-2">
-          <Button
-            variant="outline"
-            onClick={handleSaveHistory}
-            disabled={!generatedResponse || isLoading || isRefining}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            Guardar
-          </Button>
+        <CardFooter className="flex justify-end gap-2">
           <Button
             onClick={handleCopy}
             disabled={!generatedResponse || isLoading || isRefining}

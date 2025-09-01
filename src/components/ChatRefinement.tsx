@@ -37,29 +37,16 @@ type ChatRefinementProps = {
   originalResponse: string;
   onRefinement: (refinedResponse: string, messages: Message[]) => void;
   onRefiningChange: (isRefining: boolean) => void;
-  initialMessages: Message[];
 };
 
 export default function ChatRefinement({
   originalResponse,
   onRefinement,
   onRefiningChange,
-  initialMessages
 }: ChatRefinementProps) {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const { toast } = useToast();
   const [isRefining, setIsRefining] = useState(false);
-
-  useEffect(() => {
-    setMessages(initialMessages);
-  }, [initialMessages]);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      refinementRequest: "",
-    },
-  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsRefining(true);
@@ -69,7 +56,6 @@ export default function ChatRefinement({
     setMessages(newMessages);
 
     try {
-      // Use the latest bot response as the base for refinement. If no bot responses yet, use the original.
       const lastBotResponse = [...messages].reverse().find(m => m.role === 'bot')?.content;
       const responseToRefine = lastBotResponse || originalResponse;
 
@@ -94,7 +80,6 @@ export default function ChatRefinement({
         title: "Error al refinar la respuesta",
         description: "Hubo un problema al comunicarse con la IA. Por favor, inténtelo de nuevo.",
       });
-      // Optionally remove the user message if the call fails
       setMessages(prev => prev.slice(0, -1));
     } finally {
       setIsRefining(false);
