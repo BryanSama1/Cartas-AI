@@ -66,6 +66,7 @@ export const downloadAsDocx = async (letterContent: string) => {
   const signatureKeywords = [
     "DENIS ERNESTO POCASANGRE QUIJADA",
     "DANIEL ERNESTO MÉNDEZ CABRERA",
+    "LIC. JUAN CARLOS RODRÍGUEZ",
   ];
 
   const doc = new Document({
@@ -106,7 +107,7 @@ export const downloadAsDocx = async (letterContent: string) => {
               isSignatureBlock = true;
             }
             
-            if (line === 'E.S.D.O.') {
+            if (line.includes('E.S.D.O.')) {
                 isSignatureBlock = true;
             }
 
