@@ -190,11 +190,11 @@ export default function LetterGenerator() {
                     Asistente de correos
                 </CardTitle>
                 <TabsList className="grid w-full grid-cols-2 mt-2">
-                    <TabsTrigger value="response" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">
+                    <TabsTrigger value="response" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                         <FileText className="mr-2" />
                         Responder a Carta
                     </TabsTrigger>
-                    <TabsTrigger value="new" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">
+                    <TabsTrigger value="new" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                         <PencilRuler className="mr-2" />
                         Crear Nueva Carta
                     </TabsTrigger>
