@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -32,10 +32,9 @@ const formSchema = z.object({
   refinementRequest: z.string().min(1, "El mensaje no puede estar vacío."),
 });
 
-
 type ChatRefinementProps = {
   originalResponse: string;
-  onRefinement: (refinedResponse: string, messages: Message[]) => void;
+  onRefinement: (refinedResponse: string) => void;
   onRefiningChange: (isRefining: boolean) => void;
 };
 
@@ -55,19 +54,11 @@ export default function ChatRefinement({
     },
   });
 
-  const formatMessageContent = (content: string) => {
-    return content
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/<div style="text-align: right;">(.*?)<\/div>/g, '<div style="text-align: right;">$1</div>')
-      .replace(/\n/g, "<br />");
-  };
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsRefining(true);
     onRefiningChange(true);
     const userMessage: Message = { role: "user", content: values.refinementRequest };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
+    setMessages(prev => [...prev, userMessage]);
 
     try {
       const lastBotResponse = [...messages].reverse().find(m => m.role === 'bot')?.content;
@@ -83,10 +74,9 @@ export default function ChatRefinement({
       }
 
       if (result.refinedResponse) {
-        const botMessage: Message = { role: "bot", content: result.refinedResponse };
-        const finalMessages = [...newMessages, botMessage];
-        onRefinement(result.refinedResponse, finalMessages);
-        setMessages(finalMessages);
+        const botMessage: Message = { role: "bot", content: "¡Listo! He actualizado la carta. ¿Necesitas algún otro cambio?" };
+        onRefinement(result.refinedResponse);
+        setMessages(prev => [...prev, botMessage]);
       }
     } catch (error) {
       toast({
@@ -94,7 +84,8 @@ export default function ChatRefinement({
         title: "Error al refinar la respuesta",
         description: "Hubo un problema al comunicarse con la IA. Por favor, inténtelo de nuevo.",
       });
-      setMessages(prev => prev.slice(0, -1));
+      // Remove the user message if the API call fails
+      setMessages(prev => prev.slice(0, -1)); 
     } finally {
       setIsRefining(false);
       onRefiningChange(false);
@@ -128,20 +119,10 @@ export default function ChatRefinement({
                   <Bot size={20} />
                 </div>
               )}
-               {message.role === 'bot' && (
-                <div className="bg-muted p-3 rounded-lg max-w-sm">
-                    <div 
-                      className="text-sm"
-                      dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
-                    />
-                 </div>
-              )}
+               <div className="bg-muted p-3 rounded-lg max-w-sm">
+                  <p className="text-sm">{message.content}</p>
+               </div>
               {message.role === "user" && (
-                 <div className="bg-muted p-3 rounded-lg max-w-sm">
-                    <p className="text-sm">{message.content}</p>
-                 </div>
-              )}
-               {message.role === "user" && (
                  <div className="p-2 bg-secondary rounded-full text-secondary-foreground">
                    <User size={20} />
                  </div>

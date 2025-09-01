@@ -42,8 +42,7 @@ export default function LetterGenerator() {
   const [generatedResponse, setGeneratedResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Message[]>([]);
-
+  
   const { toast } = useToast();
   const responseRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +56,6 @@ export default function LetterGenerator() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setGeneratedResponse("");
-    setChatMessages([]);
     try {
       const result = await generateLetterResponse({
         letter: values.letter,
@@ -129,9 +127,8 @@ export default function LetterGenerator() {
     setGeneratedResponse(newText);
   };
   
-  const handleRefinement = (refinedResponse: string, newMessages: Message[]) => {
+  const handleRefinement = (refinedResponse: string) => {
     setGeneratedResponse(refinedResponse);
-    setChatMessages(newMessages);
   };
 
   return (
