@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Bot, FileText, Loader2, Clipboard } from "lucide-react";
+import { Bot, FileText, Loader2, Clipboard, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +39,7 @@ const formSchema = z.object({
 export default function LetterGenerator() {
   const [generatedResponse, setGeneratedResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefining, setIsRefining] = useState(false);
   const { toast } = useToast();
   const responseRef = useRef<HTMLDivElement>(null);
 
@@ -174,6 +175,7 @@ export default function LetterGenerator() {
           <ChatRefinement 
             originalResponse={generatedResponse}
             onRefinement={setGeneratedResponse}
+            onRefiningChange={setIsRefining}
           />
         )}
       </div>
@@ -188,7 +190,7 @@ export default function LetterGenerator() {
             Esta es la respuesta generada por la IA. Revísela, edítela si es necesario y cópiela.
           </CardDescription>
         </CardHeader>
-        <CardContent className="min-h-[300px] p-2">
+        <CardContent className="min-h-[300px] p-2 relative">
           {isLoading ? (
             <div className="space-y-3 p-4">
               <Skeleton className="h-4 w-1/2" />
@@ -200,14 +202,23 @@ export default function LetterGenerator() {
               <Skeleton className="h-4 w-full" />
             </div>
           ) : generatedResponse ? (
-            <div 
-              ref={responseRef} 
-              className="bg-white text-black p-6 rounded-md shadow-inner text-sm font-sans whitespace-pre-wrap min-h-[300px] focus:outline-none focus:ring-2 focus:ring-ring"
-              contentEditable={true}
-              dangerouslySetInnerHTML={{ __html: formattedResponse }} 
-              suppressContentEditableWarning={true}
-              onInput={handleResponseChange}
-            />
+            <>
+              <div 
+                ref={responseRef} 
+                className="bg-white text-black p-6 rounded-md shadow-inner text-sm font-sans whitespace-pre-wrap min-h-[300px] focus:outline-none focus:ring-2 focus:ring-ring"
+                contentEditable={true}
+                dangerouslySetInnerHTML={{ __html: formattedResponse }} 
+                suppressContentEditableWarning={true}
+                onInput={handleResponseChange}
+              />
+              {isRefining && (
+                <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-md">
+                    <Sparkles className="w-10 h-10 text-primary sparkle" style={{ animationDelay: '0s' }} />
+                    <Sparkles className="w-6 h-6 text-accent sparkle" style={{ animationDelay: '0.3s' }} />
+                    <Sparkles className="w-8 h-8 text-primary/70 sparkle" style={{ animationDelay: '0.6s' }} />
+                </div>
+              )}
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-center">
               <FileText size={48} className="mb-4" />

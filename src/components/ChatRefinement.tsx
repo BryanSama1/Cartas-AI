@@ -39,15 +39,17 @@ type Message = {
 type ChatRefinementProps = {
   originalResponse: string;
   onRefinement: (refinedResponse: string) => void;
+  onRefiningChange: (isRefining: boolean) => void;
 };
 
 export default function ChatRefinement({
   originalResponse,
   onRefinement,
+  onRefiningChange,
 }: ChatRefinementProps) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isRefining, setIsRefining] = useState(false);
   const { toast } = useToast();
+  const [isRefining, setIsRefining] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,6 +60,7 @@ export default function ChatRefinement({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsRefining(true);
+    onRefiningChange(true);
     const userMessage: Message = { role: "user", content: values.refinementRequest };
     setMessages(prev => [...prev, userMessage]);
 
@@ -90,6 +93,7 @@ export default function ChatRefinement({
       setMessages(prev => prev.slice(0, -1));
     } finally {
       setIsRefining(false);
+      onRefiningChange(false);
       form.reset();
     }
   }
