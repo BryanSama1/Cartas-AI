@@ -42,7 +42,7 @@ const prompt = ai.definePrompt({
 Your task is to take the "Original Letter" and apply the "Refinement Request" to it.
 You must not change anything else in the letter. Only apply the requested change.
 It is very important that you do not add any extra formatting. Do not make the changed text bold or uppercase unless specifically asked to.
-Return the entire letter with the change applied. Preserve the exact original formatting, including markdown for bold text (**text**).
+Return the entire letter with the change applied. Preserve the exact original formatting, including markdown for bold text (**text**), and any HTML tags like <div style="...">.
 
 **Original Letter:**
 {{{originalResponse}}}
@@ -50,7 +50,7 @@ Return the entire letter with the change applied. Preserve the exact original fo
 **Refinement Request:**
 {{{refinementRequest}}}
 
-Now, provide the full, refined letter with only the requested change applied.
+Now, provide the full, refined letter with only the requested change applied. Your output must be a valid JSON object matching the output schema, containing the full refined letter in the 'refinedResponse' field.
 `,
 });
 
