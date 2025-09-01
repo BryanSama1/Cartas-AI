@@ -39,6 +39,9 @@ Debes analizar los artículos y la forma en que se respondieron en las siguiente
 
 **Estructura de Respuesta Esperada (Sin incluir encabezados ni pies de página, solo el cuerpo):**
 
+*   (DEJAR 2 LÍNEAS EN BLANCO AL INICIO)
+*
+*
 *   (Alineado a la derecha) San Salvador, [Fecha]
 *   (Alineado a la derecha) Oficio SI No. [Número]
 *
