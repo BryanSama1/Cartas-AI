@@ -55,6 +55,13 @@ export default function ChatRefinement({
     },
   });
 
+  const formatMessageContent = (content: string) => {
+    return content
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/<div style="text-align: right;">(.*?)<\/div>/g, '<div style="text-align: right;">$1</div>')
+      .replace(/\n/g, "<br />");
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsRefining(true);
     onRefiningChange(true);
@@ -123,7 +130,10 @@ export default function ChatRefinement({
               )}
                {message.role === 'bot' && (
                 <div className="bg-muted p-3 rounded-lg max-w-sm">
-                    <p className="text-sm">{message.content}</p>
+                    <div 
+                      className="text-sm"
+                      dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
+                    />
                  </div>
               )}
               {message.role === "user" && (
