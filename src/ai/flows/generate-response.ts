@@ -56,10 +56,11 @@ Debes analizar los artículos y la forma en que se respondieron en las siguiente
 *
 *   Sin más sobre el particular, aprovecho la ocasión para externar mis muestras de consideración y estima.
 *
-*   (Bloque de firma)
+*   (Bloque de firma - Las siguientes dos líneas van juntas, sin saltos de línea extra)
 *   **[NOMBRE DEL FIRMANTE]** (Centrado y marcado en negrita con **)
 *   **[CARGO DEL FIRMANTE]** (Centrado y marcado en negrita con **)
 *
+*   (Bloque de destinatario - Las siguientes cuatro líneas van juntas, sin saltos de línea extra)
 *   **[NOMBRE DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
 *   **[CARGO DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
 *   **[MINISTERIO/ORGANIZACIÓN]** (Alineado a la izquierda y marcado en negrita con **)
@@ -91,3 +92,5 @@ const generateResponseFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    
