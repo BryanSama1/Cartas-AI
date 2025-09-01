@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -162,17 +162,29 @@ export default function LetterGenerator() {
     .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
     .replace(/\n/g, "<br />");
 
+  useEffect(() => {
+    // Only update innerHTML when the AI response changes, not during user input.
+    if (responseRef.current && responseRef.current.innerHTML !== formattedResponse) {
+      responseRef.current.innerHTML = formattedResponse;
+    }
+  }, [formattedResponse]);
+
 
   const handleResponseChange = (e: React.FormEvent<HTMLDivElement>) => {
-    const newHtml = e.currentTarget.innerHTML;
-    const newText = newHtml
+    const html = e.currentTarget.innerHTML;
+    // Convert the HTML back to our markdown-like format for the AI
+    const newText = html
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<strong>/gi, "**")
       .replace(/<\/strong>/gi, "**")
-      .replace(/<div style="text-align: right;">/g, '\n<div style="text-align: right;">')
-      .replace(/<\/div>/g, '</div>\n')
-      .replace(/<a href="(.*?)"[^>]*>(.*?)<\/a>/g, '$1'); 
-
+      .replace(/<div style="text-align: right;">/g, '<div style="text-align: right;">')
+      .replace(/<\/div>/g, '</div>')
+      .replace(/<a href="(.*?)"[^>]*>(.*?)<\/a>/g, '$2 ($1)')
+      .replace(/&nbsp;/g, " ")
+      .replace(/<[^>]*>/g, ""); // Basic cleanup of other html tags
+    
+    // We update the state, but we don't cause a re-render that overwrites innerHTML
+    // because of the check in useEffect.
     setGeneratedResponse(newText);
   };
   
@@ -190,11 +202,11 @@ export default function LetterGenerator() {
                     Asistente de correos
                 </CardTitle>
                 <TabsList className="grid w-full grid-cols-2 mt-2">
-                    <TabsTrigger value="response" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    <TabsTrigger value="response" className="data-[state=active]:bg-primary data-[state=active]:text-white">
                         <FileText className="mr-2" />
                         Responder a Carta
                     </TabsTrigger>
-                    <TabsTrigger value="new" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    <TabsTrigger value="new" className="data-[state=active]:bg-primary data-[state=active]:text-white">
                         <PencilRuler className="mr-2" />
                         Crear Nueva Carta
                     </TabsTrigger>
@@ -320,7 +332,6 @@ export default function LetterGenerator() {
                 ref={responseRef} 
                 className="bg-white text-black p-6 rounded-md shadow-inner text-sm font-sans whitespace-pre-wrap min-h-[300px] focus:outline-none focus:ring-2 focus:ring-ring"
                 contentEditable={true}
-                dangerouslySetInnerHTML={{ __html: formattedResponse }} 
                 suppressContentEditableWarning={true}
                 onInput={handleResponseChange}
               />
