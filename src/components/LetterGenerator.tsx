@@ -183,7 +183,7 @@ export default function LetterGenerator() {
 
         {generatedResponse && (
           <ChatRefinement 
-            originalResponse={generatedResponse}
+            currentResponse={generatedResponse}
             onRefinement={handleRefinement}
             onRefiningChange={setIsRefining}
           />

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CornerDownLeft, Loader2, Bot, User } from "lucide-react";
+import { CornerDownLeft, Loader2, Bot, User, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,13 +33,13 @@ const formSchema = z.object({
 });
 
 type ChatRefinementProps = {
-  originalResponse: string;
+  currentResponse: string;
   onRefinement: (refinedResponse: string) => void;
   onRefiningChange: (isRefining: boolean) => void;
 };
 
 export default function ChatRefinement({
-  originalResponse,
+  currentResponse,
   onRefinement,
   onRefiningChange,
 }: ChatRefinementProps) {
@@ -61,11 +61,8 @@ export default function ChatRefinement({
     setMessages(prev => [...prev, userMessage]);
 
     try {
-      const lastBotResponse = [...messages].reverse().find(m => m.role === 'bot')?.content;
-      const responseToRefine = lastBotResponse || originalResponse;
-
       const result = await refineLetterResponse({
-        originalResponse: responseToRefine,
+        originalResponse: currentResponse, // Always use the latest letter content
         refinementRequest: values.refinementRequest,
       });
 
