@@ -29,7 +29,7 @@ const prompt = ai.definePrompt({
   name: 'generateNewLetterPrompt',
   input: {schema: GenerateNewLetterInputSchema},
   output: {schema: GenerateNewLetterOutputSchema},
-  prompt: `Eres un asistente de IA para la "Secretaría de Innovación". Tu tarea es redactar una carta profesional basada en la instrucción del usuario.
+  prompt: `Eres un asistente de IA para la "Secretaría de Innovación". Tu tarea es redactar una carta o comunicado profesional basado en la instrucción del usuario.
 
 Es muy importante que uses **texto en negrita** para las partes que se indican y respetes la siguiente estructura.
 
@@ -41,26 +41,27 @@ Es muy importante que uses **texto en negrita** para las partes que se indican y
 *   <div style="text-align: right;">San Salvador, [Fecha]</div>
 *   <div style="text-align: right;">Oficio SI No. [Número]</div>
 *
-*   **SEÑOR/A [TÍTULO]:** (EN MAYÚSCULAS Y MARCADO EN NEGRITA CON **)
+*   **Señores (as)** (Alineado a la izquierda y marcado en negrita con **)
+*   **Ministros, Secretarios, Presidentes y** (Alineado a la izquierda y marcado en negrita con **)
+*   **Directores de Instituciones Descentralizadas,** (Alineado a la izquierda y marcado en negrita con **)
+*   **Presentes.** (Alineado a la izquierda y marcado en negrita con **)
 *
-*   (Cuerpo del texto, justificado)
-*   Reciba un cordial saludo y deseos de éxitos en el desempeño de sus funciones.
 *
-*   [Cuerpo principal de la carta, desarrollando la instrucción del usuario. El texto debe estar justificado.]
+*   Reciban un cordial saludo y deseos de éxitos en el desempeño de sus funciones.
 *
-*   Sin más sobre el particular, aprovecho la ocasión para externar mis muestras de consideración y estima.
+*   [Párrafo introductorio, por ejemplo, haciendo referencia a artículos del Reglamento Interno del Órgano Ejecutivo.]
+*
+*   [Párrafos de desarrollo, explicando el motivo de la carta según la instrucción del usuario. El texto debe estar justificado.]
+*
+*   [Párrafo de conclusión o llamado a la acción, si es necesario.]
+*
+*   Sin más sobre el particular, aprovecho la ocasión para externarles mis muestras de consideración y estima.
 *
 *   (Bloque de firma - Las siguientes dos líneas van juntas, centradas, sin saltos de línea extra)
 *   **DANIEL ERNESTO MÉNDEZ CABRERA** (Centrado y marcado en negrita con **)
 *   **SECRETARIO DE INNOVACIÓN DE LA PRESIDENCIA** (Centrado y marcado en negrita con **)
-*
-*   (Bloque de destinatario - Las siguientes cuatro líneas van juntas, alineadas a la izquierda, sin saltos de línea extra)
-*   **[NOMBRE DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
-*   **[CARGO DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
-*   **[MINISTERIO/ORGANIZACIÓN]** (Alineado a la izquierda y marcado en negrita con **)
-*   **E.S.D.O.** (Alineado a la izquierda y marcado en negrita con **)
 
-Es crucial que utilices los marcadores de posición exactos "[Fecha]", "[Número]", y los del destinatario, a menos que la instrucción del usuario provea detalles específicos para reemplazarlos.
+Es crucial que utilices los marcadores de posición exactos "[Fecha]" y "[Número]".
 
 **Instrucción del Usuario:**
 {{{prompt}}}
