@@ -52,6 +52,7 @@ const newLetterFormSchema = z.object({
 
 export default function LetterGenerator() {
   const [generatedResponse, setGeneratedResponse] = useState("");
+  const [currentLetter, setCurrentLetter] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
   const [activeTab, setActiveTab] = useState("response");
@@ -88,6 +89,7 @@ export default function LetterGenerator() {
       
       const response = result.response ?? "";
       setGeneratedResponse(response);
+      setCurrentLetter(response);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -115,6 +117,7 @@ export default function LetterGenerator() {
       
       const response = result.response ?? "";
       setGeneratedResponse(response);
+      setCurrentLetter(response);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -164,12 +167,13 @@ export default function LetterGenerator() {
 
   useEffect(() => {
     if (responseRef.current) {
-      responseRef.current.innerHTML = formattedResponse;
+      responseRef.current.innerHTML = generatedResponse ? formattedResponse : "";
     }
-  }, [formattedResponse]);
+  }, [generatedResponse, formattedResponse]);
   
   const handleRefinement = (refinedResponse: string) => {
     setGeneratedResponse(refinedResponse);
+    setCurrentLetter(refinedResponse);
   };
   
   const handleTabChange = (value: string) => {
@@ -187,11 +191,11 @@ export default function LetterGenerator() {
                     Asistente de correos
                 </CardTitle>
                 <TabsList className="grid w-full grid-cols-2 mt-2">
-                    <TabsTrigger value="response" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                    <TabsTrigger value="response" data-state={activeTab === 'response' ? 'active' : 'inactive'} className="data-[state=active]:bg-primary data-[state=active]:text-white">
                         <FileText className="mr-2" />
                         Responder a Carta
                     </TabsTrigger>
-                    <TabsTrigger value="new" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                    <TabsTrigger value="new" data-state={activeTab === 'new' ? 'active' : 'inactive'} className="data-[state=active]:bg-primary data-[state=active]:text-white">
                         <PencilRuler className="mr-2" />
                         Crear Nueva Carta
                     </TabsTrigger>
@@ -283,7 +287,7 @@ export default function LetterGenerator() {
 
         {generatedResponse && (
           <ChatRefinement 
-            currentResponse={generatedResponse}
+            currentResponse={currentLetter}
             onRefinement={handleRefinement}
             onRefiningChange={setIsRefining}
           />
@@ -348,4 +352,3 @@ export default function LetterGenerator() {
     </div>
   );
 }
- 
