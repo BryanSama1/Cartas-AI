@@ -141,17 +141,17 @@ export default function LetterGenerator() {
     }
   };
   
-  const formattedResponse = generatedResponse
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/<div style="text-align: right;">(.*?)<\/div>/g, '<div style="text-align: right;">$1</div>')
-    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
-    .replace(/\n/g, "<br />");
-
   useEffect(() => {
     if (responseRef.current) {
+        const formattedResponse = generatedResponse
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/<div style="text-align: right;">(.*?)<\/div>/g, '<div style="text-align: right;">$1</div>')
+        .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
+        .replace(/\n/g, "<br />");
+        
       responseRef.current.innerHTML = generatedResponse ? formattedResponse : "";
     }
-  }, [generatedResponse, formattedResponse]);
+  }, [generatedResponse]);
   
   const handleRefinement = (refinedResponse: string) => {
     setGeneratedResponse(refinedResponse);
