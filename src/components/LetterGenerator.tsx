@@ -167,7 +167,11 @@ export default function LetterGenerator() {
 
   useEffect(() => {
     if (responseRef.current) {
-      responseRef.current.innerHTML = generatedResponse ? formattedResponse : "";
+      if (generatedResponse) {
+        responseRef.current.innerHTML = formattedResponse;
+      } else {
+        responseRef.current.innerHTML = "";
+      }
     }
   }, [generatedResponse, formattedResponse]);
   
