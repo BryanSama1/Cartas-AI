@@ -171,12 +171,17 @@ export default function LetterGenerator() {
   const handleRefinement = (refinedResponse: string) => {
     setGeneratedResponse(refinedResponse);
   };
+  
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setGeneratedResponse("");
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
       <div className="flex flex-col gap-8">
         <Card>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <CardHeader>
                 <CardTitle className="font-headline text-xl">
                     Asistente de correos
