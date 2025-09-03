@@ -142,14 +142,14 @@ export default function LetterGenerator() {
   };
   
   useEffect(() => {
+    const formattedResponse = generatedResponse
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/<div style="text-align: right;">(.*?)<\/div>/g, '<div style="text-align: right;">$1</div>')
+    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
+    .replace(/\n/g, "<br />");
+
     if (responseRef.current) {
-        const formattedResponse = generatedResponse
-        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-        .replace(/<div style="text-align: right;">(.*?)<\/div>/g, '<div style="text-align: right;">$1</div>')
-        .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
-        .replace(/\n/g, "<br />");
-        
-      responseRef.current.innerHTML = generatedResponse ? formattedResponse : "";
+        responseRef.current.innerHTML = formattedResponse;
     }
   }, [generatedResponse]);
   
@@ -297,28 +297,32 @@ export default function LetterGenerator() {
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-full" />
             </div>
-          ) : generatedResponse ? (
+          ) : (
             <>
               <div 
                 ref={responseRef} 
                 className="bg-white text-black p-6 rounded-md shadow-inner text-sm font-sans whitespace-pre-wrap min-h-[300px] focus:outline-none focus:ring-2 focus:ring-ring"
-                contentEditable={true}
+                contentEditable={!isLoading && !isRefining}
                 suppressContentEditableWarning={true}
               />
-              {isRefining && (
-                <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-md">
-                    <Sparkles className="w-10 h-10 text-primary sparkle" style={{ animationDelay: '0s' }} />
-                    <Sparkles className="w-6 h-6 text-accent sparkle" style={{ animationDelay: '0.3s' }} />
-                    <Sparkles className="w-8 h-8 text-primary/70 sparkle" style={{ animationDelay: '0.6s' }} />
+              {generatedResponse ? (
+                <>
+                  {isRefining && (
+                    <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center rounded-md">
+                        <Sparkles className="w-10 h-10 text-primary sparkle" style={{ animationDelay: '0s' }} />
+                        <Sparkles className="w-6 h-6 text-accent sparkle" style={{ animationDelay: '0.3s' }} />
+                        <Sparkles className="w-8 h-8 text-primary/70 sparkle" style={{ animationDelay: '0.6s' }} />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center h-full text-muted-foreground text-center pointer-events-none">
+                  <Bot size={48} className="mb-4" />
+                  <p>La carta generada aparecerá aquí.</p>
+                  <p className="text-xs text-muted-foreground/80">Seleccione una opción a la izquierda para comenzar.</p>
                 </div>
               )}
             </>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-center">
-              <Bot size={48} className="mb-4" />
-              <p>La carta generada aparecerá aquí.</p>
-              <p className="text-xs text-muted-foreground/80">Seleccione una opción a la izquierda para comenzar.</p>
-            </div>
           )}
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
@@ -334,5 +338,3 @@ export default function LetterGenerator() {
     </div>
   );
 }
-
-    
