@@ -42,36 +42,7 @@ const prompt = ai.definePrompt({
 
 This is not just about adding text. You must understand the instruction and rewrite the relevant parts of the letter to reflect the requested change logically and coherently. For example, if the original letter denies an invitation and the request is "now accept it", you must change the body of the letter to be an acceptance.
 
-After applying the logical changes, you must return the entire letter with the change applied, preserving the exact original formatting. It is crucial that you respect the following structure and use the same markers.
-
-**Estructura de Respuesta Esperada (Sin incluir encabezados ni pies de página, solo el cuerpo):**
-
-*   (DEJAR 2 LÍNEAS EN BLANCO AL INICIO)
-*
-*
-*   <div style="text-align: right;">San Salvador, [Fecha]</div>
-*   <div style="text-align: right;">Oficio SI No. [Número]</div>
-*
-*   **SEÑOR/A [TÍTULO]:** (EN MAYÚSCULAS Y MARCADO EN NEGRITA CON **)
-*
-*   (Cuerpo del texto, justificado)
-*   Reciba un cordial saludo y deseos de éxitos en el desempeño de sus funciones.
-*
-*   [Cuerpo principal de la carta, haciendo referencia a la carta recibida, citando artículos relevantes, proporcionando observaciones, etc. El texto debe estar justificado.]
-*
-*   En virtud de lo antes expuesto, [párrafo de conclusión].
-*
-*   Sin más sobre el particular, aprovecho la ocasión para externar mis muestras de consideración y estima.
-*
-*   (Bloque de firma - Las siguientes dos líneas van juntas, centradas, sin saltos de línea extra)
-*   **DANIEL ERNESTO MÉNDEZ CABRERA** (Centrado y marcado en negrita con **)
-*   **SECRETARIO DE INNOVACIÓN DE LA PRESIDENCIA** (Centrado y marcado en negrita con **)
-*
-*   (Bloque de destinatario - Las siguientes cuatro líneas van juntas, alineadas a la izquierda, sin saltos de línea extra)
-*   **[NOMBRE DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
-*   **[CARGO DEL DESTINATARIO]** (Alineado a la izquierda y marcado en negrita con **)
-*   **[MINISTERIO/ORGANIZACIÓN]** (Alineado a la izquierda y marcado en negrita con **)
-*   **E.S.D.O.** (Alineado a la izquierda y marcado en negrita con **)
+After applying the logical changes, you must return the entire letter with the change applied, preserving the exact original formatting. It is crucial that you respect the structure and use the same markers (like ** for bold text or <div> for alignment).
 
 **Original Letter:**
 {{{originalResponse}}}
