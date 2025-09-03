@@ -74,14 +74,11 @@ export default function LetterGenerator() {
     },
   });
 
-  async function onResponseSubmit(values: z.infer<typeof responseFormSchema>) {
+  const handleSubmission = async (action: Promise<{ error?: string; response?: string }>) => {
     setIsLoading(true);
     setGeneratedResponse("");
     try {
-      const result = await generateLetterResponse({
-        letter: values.letter,
-        exampleLetters: exampleLetters,
-      });
+      const result = await action;
 
       if (result.error) {
         throw new Error(result.error);
@@ -101,34 +98,19 @@ export default function LetterGenerator() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  function onResponseSubmit(values: z.infer<typeof responseFormSchema>) {
+    handleSubmission(generateLetterResponse({
+      letter: values.letter,
+      exampleLetters: exampleLetters,
+    }));
   }
 
-  async function onNewLetterSubmit(values: z.infer<typeof newLetterFormSchema>) {
-    setIsLoading(true);
-    setGeneratedResponse("");
-    try {
-      const result = await generateNewLetter({
-        prompt: values.prompt,
-      });
-
-      if (result.error) {
-        throw new Error(result.error);
-      }
-      
-      const response = result.response ?? "";
-      setGeneratedResponse(response);
-      setCurrentLetter(response);
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error al generar la carta",
-        description:
-          "Hubo un problema al comunicarse con la IA. Por favor, inténtelo de nuevo.",
-      });
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+  function onNewLetterSubmit(values: z.infer<typeof newLetterFormSchema>) {
+    handleSubmission(generateNewLetter({
+      prompt: values.prompt,
+    }));
   }
 
 
@@ -167,11 +149,7 @@ export default function LetterGenerator() {
 
   useEffect(() => {
     if (responseRef.current) {
-      if (generatedResponse) {
-        responseRef.current.innerHTML = formattedResponse;
-      } else {
-        responseRef.current.innerHTML = "";
-      }
+      responseRef.current.innerHTML = generatedResponse ? formattedResponse : "";
     }
   }, [generatedResponse, formattedResponse]);
   
@@ -356,3 +334,5 @@ export default function LetterGenerator() {
     </div>
   );
 }
+
+    
